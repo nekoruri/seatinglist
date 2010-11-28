@@ -1,0 +1,53 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: #aaccff;
+}
+
+table {
+    margin: 20px;
+    background: #ffffff;
+}
+
+th, td { 
+    text-align: center;
+    width: 5em;
+    height: 2em;
+}
+
+th {
+    background: #666;
+    color: #ffffff;
+}
+
+td.disabled { 
+    background: gray;
+    colod: white;
+}
+
+td.myself { 
+    background: yellow;
+    colod: black;
+}
+
+p, ul {
+    margin: 1em;
+}
+
+li { 
+    margin: 0 1em;
+}
+
+address {
+    text-align: right;
+}
+
+h1 {
+    margin: 0.5em;
+    padding: 3px 3px 3px 0.5em ;
+    border-left: 1em solid #0a0;
+    border-bottom: 1px solid #0a0;
+}
