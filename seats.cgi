@@ -116,6 +116,22 @@ get '/:event_id/seat/:x/:y' => sub {
     $self->redirect_to($auth_url);
 };
 
+post '/:event_id/seat/:x/:y' => sub {
+    my $self = shift;
+    my $event_id = $self->param('event_id');
+    my $seat_X = $self->param('x');
+    my $seat_Y = $self->param('y');
+
+    if ($self->param('remove')) {
+        remove_seat($event_id, $seat_X, $seat_Y);
+    } elsif ($self->param('machismo')) {
+        machismo_seat($event_id, $seat_X, $seat_Y);
+    } elsif ($self->param('nomachismo')) {
+        nomachismo_seat($event_id, $seat_X, $seat_Y);
+    }
+    $self->redirect_to($self->url_for('event')->to_abs."$event_id");
+};
+
 get '/:event_id/seat/:x/:y/authorized' => sub {
     my $self = shift;
     my $event_id = $self->param('event_id');
@@ -160,36 +176,6 @@ get '/:event_id/seat/:x/:y/enable' => sub {
 
     enable_seat($event_id, $seat_X, $seat_Y);
     $self->redirect_to($self->url_for('event')->to_abs."$event_id/admin");
-};
-
-get '/:event_id/seat/:x/:y/remove' => sub {
-    my $self = shift;
-    my $event_id = $self->param('event_id');
-    my $seat_X = $self->param('x');
-    my $seat_Y = $self->param('y');
-
-    remove_seat($event_id, $seat_X, $seat_Y);
-    $self->redirect_to($self->url_for('event')->to_abs."$event_id");
-};
-
-get '/:event_id/seat/:x/:y/machismo' => sub {
-    my $self = shift;
-    my $event_id = $self->param('event_id');
-    my $seat_X = $self->param('x');
-    my $seat_Y = $self->param('y');
-
-    machismo_seat($event_id, $seat_X, $seat_Y);
-    $self->redirect_to($self->url_for('event')->to_abs."$event_id");
-};
-
-get '/:event_id/seat/:x/:y/nomachismo' => sub {
-    my $self = shift;
-    my $event_id = $self->param('event_id');
-    my $seat_X = $self->param('x');
-    my $seat_Y = $self->param('y');
-
-    nomachismo_seat($event_id, $seat_X, $seat_Y);
-    $self->redirect_to($self->url_for('event')->to_abs."$event_id");
 };
 
 app->types->type(html => 'text/html; charset=utf-8');
@@ -420,25 +406,33 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 <%          if ( my $seat = $seats->[$x][$y] ) { %>
 <%              if ( $seat->{is_enabled} ) { %>
 <%                  if ( $seat->{screen_name} eq $screen_name ) { %>
+        <form method="POST" action="/<%= $event_id %>/seat/<%= $x %>/<%= $y %>">
         <td class="myself"><a href="http://twitter.com/<%= $seat->{screen_name} %>"><%= $seat->{screen_name} %></a><br />
             <img src="<%= $seat->{profile_image_url} %>" /><br />
-            <span style="font-size: xx-small">[<a href="/<%= $event_id %>/seat/<%= $x %>/<%= $y %>/remove">消す</a>]<br />
+            <span style="font-size: xx-small">
+            <input type="submit" name="remove" value="消す" /><br />
 <%                      if ( defined($seat->{is_machismo}) ) { %>
                 [ <%= $seat->{is_machismo} == 1 ? 'マッチョ' : 'ウィンプ' %> ]
 <%                      } else { %>
-                [ <a href="<%= $event_id %>/seat/<%= $x %>/<%= $y %>/machismo">マッチョ</a> / <a href="<%= $event_id %>/seat/<%= $x %>/<%= $y %>/nomachismo">ウィンプ</a> ]
+            <input type="submit" name="machismo" value="マッチョ" />
+            <input type="submit" name="nomachismo" value="ウィンプ" /><br />
 <%                      } %></span>
         </td>
+        </form>
 <%                  } else { %>
+        <form method="POST" action="/<%= $event_id %>/seat/<%= $x %>/<%= $y %>">
         <td><a href="http://twitter.com/<%= $seat->{screen_name} %>"><%= $seat->{screen_name} %></a><br />
             <img src="<%= $seat->{profile_image_url} %>" /><br />
-            <span style="font-size: xx-small">[<a href="/<%= $event_id %>/seat/<%= $x %>/<%= $y %>/remove">消す</a>]<br />
+            <span style="font-size: xx-small">
+            <input type="submit" name="remove" value="消す" /><br />
 <%                      if ( defined($seat->{is_machismo}) ) { %>
                 [ <%= $seat->{is_machismo} == 1 ? 'マッチョ' : 'ウィンプ' %> ]
 <%                      } else { %>
-                [ <a href="<%= $event_id %>/seat/<%= $x %>/<%= $y %>/machismo">マッチョ</a> / <a href="<%= $event_id %>/seat/<%= $x %>/<%= $y %>/nomachismo">ウィンプ</a> ]
+            <input type="submit" name="machismo" value="マッチョ" />
+            <input type="submit" name="nomachismo" value="ウィンプ" /><br />
 <%                      } %></span>
         </td>
+        </form>
 <%                  } %>
 <%              } else { %>
 <%                  if ( $admin ) { %>
