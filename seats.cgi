@@ -340,7 +340,20 @@ __DATA__
 
 @@ index.html.ep
 <html>
-<head><title>イベント座席表</title></head>
+<head>
+    <title>イベント座席表</title>
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-19946424-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+</head>
 <body>
 
 <h1>イベント一覧</h1>
@@ -359,9 +372,38 @@ __DATA__
 </html>
 @@ event.html.ep
 <html>
-<head><title>座席表 [ <%= $event->{title} %> ]</title></head>
+<head>
+    <title>座席表 [ <%= $event->{title} %> ]</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-19946424-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+</head>
 <link rel="stylesheet" href="/style.css" type="text/css">
 <body>
+
+<div class="ad">
+<script type="text/javascript"><!--
+google_ad_client = "ca-pub-4628387712169493";
+/* イベントページ トップバナー */
+google_ad_slot = "8384267503";
+google_ad_width = 728;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+</div>
 
 <h1>座席表 [ <%= $event->{title} %> ]</h1>
 <table border="1">
