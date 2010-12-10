@@ -1,4 +1,4 @@
-#!/home/masa/perl5/perlbrew/perls/perl-5.10.1/bin/perl
+#!/usr/bin/env perl
 
 use utf8;
 use Mojolicious::Lite;
