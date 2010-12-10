@@ -7,9 +7,12 @@ use DBI;
 use Data::Dumper;
 use Config::Pit;
 
-my $config = pit_get("twitter.com" , require => {
+my $config = pit_get("seatinglist" , require => {
     consumer_key => 'Twitter consumer_key',
     consumer_secret => 'Twitter consumer_secret',
+    db_dsn => 'Database data source name',
+    db_username => 'Database username',
+    db_password => 'Database password',
 });
 
 my $tw = Net::Twitter::Lite->new(
