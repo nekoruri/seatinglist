@@ -33,11 +33,58 @@ get '/' => sub {
     $self->render(events => search_all_events());
 } => 'index';
 
+get '/login' => sub {
+    my $self = shift;
+
+    my $user = verify_credentials($self);
+    if ($user) {
+        # 既にログインしていれば何もせず戻る。
+        if ( my $event_id = $self->param('event_id') ) {
+            $self->redirect_to($self->url_for('event')->to_abs."$event_id");
+        } else {
+            $self->redirect_to($self->url_for('index')->to_abs);
+        }
+    } else {
+        # ひとまず今のアクセストークン対を忘れる。
+        $self->session('tw_access_token' => '');
+        $self->session('tw_access_token_secret' => '');
+
+        # Sign in with Twitter
+        my $callback_url = $self->url_for('authorized')->to_abs;
+        if (my $event_id = $self->param('event_id')) {
+            $callback_url .= "?event_id=$event_id";
+        }
+        my $auth_url = $tw->get_authentication_url(callback => $callback_url);
+        $self->session('tw_request_token' => $tw->request_token);
+        $self->session('tw_request_token_secret' => $tw->request_token_secret);
+
+        $self->redirect_to($auth_url);
+    }
+} => 'login';
+
+get '/authorized' => sub {
+    my $self = shift;
+
+    my $verifier = $self->param('oauth_verifier');
+    if ($verifier) {
+        request_access_token($self, $verifier);
+    }
+    if ( my $event_id = $self->param('event_id') ) {
+        $self->redirect_to($self->url_for('event')->to_abs."$event_id");
+    } else {
+        $self->redirect_to($self->url_for('index')->to_abs);
+    }
+} => 'authorized';
+
 get '/logout' => sub {
     my $self = shift;
     $self->session(expires => 1);
-    $self->redirect_to($self->url_for('index')->to_abs);
-} => 'index';
+    if ( my $event_id = $self->param('event_id') ) {
+        $self->redirect_to($self->url_for('event')->to_abs."$event_id");
+    } else {
+        $self->redirect_to($self->url_for('index')->to_abs);
+    }
+} => 'logout';
 
 # イベントの座席表を表示
 get '/:event_id' => sub {
@@ -47,18 +94,10 @@ get '/:event_id' => sub {
     my ( $event, $seats ) = generate_seats($event_id);
 
     $self->stash(screen_name => '');
-    eval {
-        # Twitterの認証が有効かを確認
-        my $tw_access_token = $self->session('tw_access_token');
-        my $tw_access_token_secret = $self->session('tw_access_token_secret');
-        if ( $tw_access_token && $tw_access_token_secret ) {
-            $tw->access_token($tw_access_token);
-            $tw->access_token_secret($tw_access_token_secret);
-            if ( my $user = $tw->verify_credentials ) {
-                $self->stash(screen_name => $user->{screen_name});
-            }
-        }
-    };
+    my $user = verify_credentials($self);
+    if ($user) {
+        $self->stash(screen_name => $user->{screen_name});
+    }
 
     $self->stash(admin => 0);
     $self->stash(event => $event);
@@ -148,17 +187,7 @@ get '/:event_id/seat/:x/:y/authorized' => sub {
 
     my $verifier = $self->param('oauth_verifier');
     if ($verifier) {
-        $tw->request_token( $self->session('tw_request_token') );
-        $tw->request_token_secret( $self->session('tw_request_token_secret' ) );
-
-        eval { 
-            my ($access_token, $access_token_secret, $user_id, $screen_name) = $tw->request_access_token(verifier => $verifier);
-
-            $self->session(tw_access_token => $access_token);
-            $self->session(tw_access_token_secret => $access_token_secret);
-        }; if ($@) {
-            warn Dumper($@);
-        }
+        request_access_token($self, $verifier);
         update_seat($event_id, $seat_X, $seat_Y);
         $self->redirect_to($self->url_for('event')->to_abs."$event_id");
     }
@@ -188,6 +217,41 @@ get '/:event_id/seat/:x/:y/enable' => sub {
 
 app->types->type(html => 'text/html; charset=utf-8');
 app->start;
+
+# Twitterのアクセストークンを取得してセッションに保存
+sub request_access_token
+{
+    my ( $self, $verifier ) = @_;
+    $tw->request_token( $self->session('tw_request_token') );
+    $tw->request_token_secret( $self->session('tw_request_token_secret' ) );
+
+    eval { 
+        my ($access_token, $access_token_secret, $user_id, $screen_name) = $tw->request_access_token(verifier => $verifier);
+
+        $self->session(tw_access_token => $access_token);
+        $self->session(tw_access_token_secret => $access_token_secret);
+    }; if ($@) {
+        warn Dumper($@);
+    }
+}
+
+# 自分のユーザ情報を取得
+sub verify_credentials
+{
+    my $self = shift;
+    eval {
+        # Twitterの認証が有効かを確認
+        my $tw_access_token = $self->session('tw_access_token');
+        my $tw_access_token_secret = $self->session('tw_access_token_secret');
+        if ( $tw_access_token && $tw_access_token_secret ) {
+            $tw->access_token($tw_access_token);
+            $tw->access_token_secret($tw_access_token_secret);
+            if ( my $user = $tw->verify_credentials ) {
+                return $user;
+            }
+        }
+    };
+}
 
 sub generate_seats
 {
@@ -384,6 +448,11 @@ __DATA__
 </head>
 <link rel="stylesheet" href="/style.css" type="text/css">
 <body>
+<% if ( $screen_name ) { %>
+<div id="login">@<%= $screen_name %> にてログイン中 / <a href="<%= url_for('logout') %>?event_id=<%= $event_id %>">ログアウト</a></div>
+<% } else { %>
+<div id="login">ログインしていません / <a href="<%= url_for('login') %>?event_id=<%= $event_id %>"><img src="http://a0.twimg.com/images/dev/buttons/sign-in-with-twitter-l-sm.png" width="126" height="16" /></a></div>
+<% } %>
 
 <div class="ad">
 <script type="text/javascript"><!--

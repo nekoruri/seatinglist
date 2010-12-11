@@ -7,6 +7,10 @@ body {
     background: #aaccff;
 }
 
+a img {
+    border: 0;
+}
+
 table {
     margin: 20px;
     background: #ffffff;
@@ -55,4 +59,14 @@ h1 {
 div.ad {
     text-align: center;
     margin: 15px auto 15px auto;
+}
+
+div#login {
+    margin: 20px;
+    font-size: 12px;
+    text-align: right;
+}
+
+div#login img {
+    vertical-align: bottom;
 }
