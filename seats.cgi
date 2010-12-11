@@ -33,6 +33,12 @@ get '/' => sub {
     $self->render(events => search_all_events());
 } => 'index';
 
+get '/logout' => sub {
+    my $self = shift;
+    $self->session(expires => 1);
+    $self->redirect_to($self->url_for('index')->to_abs);
+} => 'index';
+
 # イベントの座席表を表示
 get '/:event_id' => sub {
     my $self = shift;
