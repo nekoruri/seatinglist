@@ -70,3 +70,8 @@ div#login {
 div#login img {
     vertical-align: bottom;
 }
+
+
+.qpstudy {
+    display: none;
+}

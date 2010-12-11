@@ -487,13 +487,13 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
         <td class="myself"><a href="http://twitter.com/<%= $seat->{screen_name} %>"><%= $seat->{screen_name} %></a><br />
             <img src="<%= $seat->{profile_image_url} %>" /><br />
             <span style="font-size: xx-small">
-            <input type="submit" name="remove" value="消す" /><br />
+            <input type="submit" name="remove" value="消す" /><span class="qpstudy"><br />
 <%                      if ( defined($seat->{is_machismo}) ) { %>
                 [ <%= $seat->{is_machismo} == 1 ? 'マッチョ' : 'ウィンプ' %> ]
 <%                      } else { %>
             <input type="submit" name="machismo" value="マッチョ" />
             <input type="submit" name="nomachismo" value="ウィンプ" /><br />
-<%                      } %></span>
+<%                      } %></span></span>
         </td>
         </form>
 <%                  } else { %>
@@ -501,13 +501,13 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
         <td><a href="http://twitter.com/<%= $seat->{screen_name} %>"><%= $seat->{screen_name} %></a><br />
             <img src="<%= $seat->{profile_image_url} %>" /><br />
             <span style="font-size: xx-small">
-            <input type="submit" name="remove" value="消す" /><br />
+            <input type="submit" name="remove" value="消す" /><span class="qpstudy"><br />
 <%                      if ( defined($seat->{is_machismo}) ) { %>
                 [ <%= $seat->{is_machismo} == 1 ? 'マッチョ' : 'ウィンプ' %> ]
 <%                      } else { %>
             <input type="submit" name="machismo" value="マッチョ" />
             <input type="submit" name="nomachismo" value="ウィンプ" /><br />
-<%                      } %></span>
+<%                      } %></span></span>
         </td>
         </form>
 <%                  } %>
@@ -538,7 +538,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 <li>最後に登録した一箇所のみが有効です。座席を間違えたら、正しい位置で登録すれば移動します。</li>
 <li>TwitterのアクセストークンはブラウザのCookieに保存されているのでシステム側には保存しません。</li>
 <li>他の人が席を独り占めしっぱなしの時は、その人を消してから乗っ取ってください。</li>
-<li>マッチョ: <%= $event->{machismo} %>人 / ウィンプ: <%= $event->{nomachismo} %>人</li>
+<li class="qpstudy">マッチョ: <%= $event->{machismo} %>人 / ウィンプ: <%= $event->{nomachismo} %>人</li>
 </ul>
 </p>
 
