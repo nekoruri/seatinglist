@@ -116,7 +116,7 @@ get '/:event_id/seat/:x/:y' => sub {
 
     # 無効ならば、request_tokenをもらってauthorization開始
     my $callback_url = $self->url_for('index')->to_abs . "$event_id/seat/$seat_X/$seat_Y/authorized";
-    my $auth_url = $tw->get_authorization_url(callback => $callback_url);
+    my $auth_url = $tw->get_authentication_url(callback => $callback_url);
 
     $self->session('tw_request_token' => $tw->request_token);
     $self->session('tw_request_token_secret' => $tw->request_token_secret);
