@@ -107,7 +107,6 @@ get '/:event_id' => sub {
 get '/:event_id/admin' => sub {
     my $self = shift;
     my $event_id = $self->param('event_id');
-#    $self->render(text => "event_id: $event_id\n");
 
     my ( $event, $seats ) = $db->generate_seats($event_id);
 
@@ -163,6 +162,7 @@ get '/:event_id/seat/:x/:y' => sub {
     $self->redirect_to($auth_url);
 };
 
+# 座席情報の編集
 post '/:event_id/seat/:x/:y' => sub {
     my $self = shift;
     my $event_id = $self->param('event_id');
@@ -179,6 +179,7 @@ post '/:event_id/seat/:x/:y' => sub {
     $self->redirect_to($self->url_for('event')->to_abs."$event_id");
 };
 
+# 座席登録(Twitter認証からのコールバック先)
 get '/:event_id/seat/:x/:y/authorized' => sub {
     my $self = shift;
     my $event_id = $self->param('event_id');
@@ -193,10 +194,9 @@ get '/:event_id/seat/:x/:y/authorized' => sub {
         }
         $self->redirect_to($self->url_for('event')->to_abs."$event_id");
     }
-#    $self->redirect_to('event');
 };
 
-
+# 座席を無効化
 get '/:event_id/seat/:x/:y/disable' => sub {
     my $self = shift;
     my $event_id = $self->param('event_id');
@@ -207,6 +207,7 @@ get '/:event_id/seat/:x/:y/disable' => sub {
     $self->redirect_to($self->url_for('event')->to_abs."$event_id/admin");
 };
 
+# 座席を有効化
 get '/:event_id/seat/:x/:y/enable' => sub {
     my $self = shift;
     my $event_id = $self->param('event_id');
