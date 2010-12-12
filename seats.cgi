@@ -192,8 +192,8 @@ get '/:event_id/seat/:x/:y/authorized' => sub {
         if ( my $user = $tw->verify_credentials ) {
             $db->update_seat($user, $event_id, $seat_X, $seat_Y);
         }
-        $self->redirect_to($self->url_for('event')->to_abs."$event_id");
     }
+    $self->redirect_to($self->url_for('event')->to_abs."$event_id");
 };
 
 # 座席を無効化
