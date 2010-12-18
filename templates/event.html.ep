@@ -17,25 +17,26 @@
 </head>
 <link rel="stylesheet" href="/style.css" type="text/css">
 <body>
-% if ( $screen_name ) {
-<div id="login">@<%= $screen_name %> にてログイン中 / <a href="<%= url_for('logout') %>?event_id=<%= $event_id %>">ログアウト</a></div>
-% } else {
-<div id="login">ログインしていません / <a href="<%= url_for('login') %>?event_id=<%= $event_id %>"><img src="http://a0.twimg.com/images/dev/buttons/sign-in-with-twitter-l-sm.png" width="126" height="16" /></a></div>
-% }
 
 <div class="ad">
 <script type="text/javascript"><!--
 google_ad_client = "ca-pub-4628387712169493";
-/* イベントページ トップバナー */
-google_ad_slot = "8384267503";
-google_ad_width = 728;
-google_ad_height = 90;
+/* トップバナー(468x60) */
+google_ad_slot = "6234035301";
+google_ad_width = 468;
+google_ad_height = 60;
 //-->
 </script>
 <script type="text/javascript"
 src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 </script>
 </div>
+
+% if ( $screen_name ) {
+<div id="login">@<%= $screen_name %> にてログイン中 / <a href="<%= url_for('logout') %>?event_id=<%= $event_id %>">ログアウト</a></div>
+% } else {
+<div id="login">ログインしていません / <a href="<%= url_for('login') %>?event_id=<%= $event_id %>"><img src="http://a0.twimg.com/images/dev/buttons/sign-in-with-twitter-l-sm.png" width="126" height="16" /></a></div>
+% }
 
 <h1>座席表 [ <%= $event->{title} %> ]</h1>
 <table border="1" class="seats">

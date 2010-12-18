@@ -54,11 +54,13 @@ h1 {
     padding: 3px 3px 3px 0.5em ;
     border-left: 1em solid #0a0;
     border-bottom: 1px solid #0a0;
+    clear: both;
 }
 
 div.ad {
-    text-align: center;
-    margin: 15px auto 15px auto;
+    float: left;
+    width: 468px;
+    height: 60px;
 }
 
 div#login {
