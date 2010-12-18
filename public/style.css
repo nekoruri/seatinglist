@@ -71,6 +71,23 @@ div#login img {
     vertical-align: bottom;
 }
 
+table.seats th, table.seats td {
+    width: 60px;
+}
+table.seats td {
+    font-size: x-small;
+}
+table.seats td div.screen_name {
+    width: 60px;
+    white-space: nowrap;
+    word-wrap: break-word;
+    word-break:break-all;
+}
+
+table.seats img {
+    width 48px;
+    height: 48px;
+}
 
 .qpstudy {
     display: none;

@@ -17,9 +17,9 @@
 
 <h1>イベント一覧</h1>
 <ul>
-<% foreach my $event ( @$events ) { %>
+% foreach my $event ( @$events ) {
     <li><a href="/<%= $event->{id} %>"><%= $event->{title} %></a></li>
-<% } %>
+% }
 </ul>
 
 <address>

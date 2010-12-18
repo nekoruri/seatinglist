@@ -17,11 +17,11 @@
 </head>
 <link rel="stylesheet" href="/style.css" type="text/css">
 <body>
-<% if ( $screen_name ) { %>
+% if ( $screen_name ) {
 <div id="login">@<%= $screen_name %> にてログイン中 / <a href="<%= url_for('logout') %>?event_id=<%= $event_id %>">ログアウト</a></div>
-<% } else { %>
+% } else {
 <div id="login">ログインしていません / <a href="<%= url_for('login') %>?event_id=<%= $event_id %>"><img src="http://a0.twimg.com/images/dev/buttons/sign-in-with-twitter-l-sm.png" width="126" height="16" /></a></div>
-<% } %>
+% }
 
 <div class="ad">
 <script type="text/javascript"><!--
@@ -38,65 +38,51 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 </div>
 
 <h1>座席表 [ <%= $event->{title} %> ]</h1>
-<table border="1">
+<table border="1" class="seats">
     <thead>
     <tr><th colspan="<%= $event->{seats_X}+1 %>">前</th></tr>
     <tr><th>Y ＼ X</th>
-<%      foreach my $x ( 0 ... $event->{seats_X}-1 ) { %>
+%      foreach my $x ( 0 ... $event->{seats_X}-1 ) {
         <th><%= $x %></td>
-<%      } %>
+%      }
     </tr></thead><tfoot></tfoot><tbody>
-<% foreach my $y ( 0 ... $event->{seats_Y}-1 ) { %>
+% foreach my $y ( 0 ... $event->{seats_Y}-1 ) {
     <tr><th><%= $y %></th>
-<%      foreach my $x ( 0 ... $event->{seats_X}-1 ) { %>
-<%          if ( my $seat = $seats->[$x][$y] ) { %>
-<%              if ( $seat->{is_enabled} ) { %>
-<%                  if ( $seat->{screen_name} eq $screen_name ) { %>
+%      foreach my $x ( 0 ... $event->{seats_X}-1 ) {
+%          if ( my $seat = $seats->[$x][$y] ) {
+%              if ( $seat->{is_enabled} ) {
+        <td<%== ($seat->{screen_name} eq $screen_name ? q{ class="myself"} : '') %>>
         <form method="POST" action="/<%= $event_id %>/seat/<%= $x %>/<%= $y %>">
-        <td class="myself"><a href="http://twitter.com/<%= $seat->{screen_name} %>"><%= $seat->{screen_name} %></a><br />
-            <img src="<%= $seat->{profile_image_url} %>" /><br />
+            <div class="screen_name"><%= $seat->{screen_name} %></div>
+            <a href="http://twitter.com/<%= $seat->{screen_name} %>"><img src="<%= $seat->{profile_image_url} %>" /></a><br />
             <span style="font-size: xx-small">
             <input type="submit" name="remove" value="消す" /><span class="qpstudy"><br />
-<%                      if ( defined($seat->{is_machismo}) ) { %>
+%                  if ( defined($seat->{is_machismo}) ) {
                 [ <%= $seat->{is_machismo} == 1 ? 'マッチョ' : 'ウィンプ' %> ]
-<%                      } else { %>
+%                  } else {
             <input type="submit" name="machismo" value="マッチョ" />
             <input type="submit" name="nomachismo" value="ウィンプ" /><br />
-<%                      } %></span></span>
-        </td>
+%                  }
+            </span></span>
         </form>
-<%                  } else { %>
-        <form method="POST" action="/<%= $event_id %>/seat/<%= $x %>/<%= $y %>">
-        <td><a href="http://twitter.com/<%= $seat->{screen_name} %>"><%= $seat->{screen_name} %></a><br />
-            <img src="<%= $seat->{profile_image_url} %>" /><br />
-            <span style="font-size: xx-small">
-            <input type="submit" name="remove" value="消す" /><span class="qpstudy"><br />
-<%                      if ( defined($seat->{is_machismo}) ) { %>
-                [ <%= $seat->{is_machismo} == 1 ? 'マッチョ' : 'ウィンプ' %> ]
-<%                      } else { %>
-            <input type="submit" name="machismo" value="マッチョ" />
-            <input type="submit" name="nomachismo" value="ウィンプ" /><br />
-<%                      } %></span></span>
         </td>
-        </form>
-<%                  } %>
-<%              } else { %>
-<%                  if ( $admin ) { %>
+%              } else {
+%                  if ( $admin ) {
         <td class="disabled"><a href="/<%= $event_id %>/seat/<%= $x %>/<%= $y %>/enable">戻す</a></td>
-<%                  } else { %>
+%                  } else {
         <td class="disabled">-</td>
-<%                  } %>
-<%              } %>
-<%          } else { %>
-<%              if ( $admin ) { %>
+%                  }
+%              }
+%          } else {
+%              if ( $admin ) {
         <td><a href="/<%= $event_id %>/seat/<%= $x %>/<%= $y %>/disable">予約</a></td>
-<%              } else { %>
+%              } else {
         <td><a href="/<%= $event_id %>/seat/<%= $x %>/<%= $y %>">ｲﾏｺｺ</a></td>
-<%              } %>
-<%          } %>
-<%      } %>
+%              }
+%          }
+%      }
     </tr>
-<% } %>
+% }
 </tbody></table>
 
 <hr />
