@@ -4,7 +4,11 @@
 }
 
 body {
-    background: #aaccff;
+}
+
+.contents {
+    width: 1024px;
+    background: url(gradation.png) repeat-x #fff;
 }
 
 a img {
@@ -50,23 +54,35 @@ address {
 }
 
 h1 {
-    margin: 0.5em;
+    margin: 0.5em 0.5em 0.5em 20px;
     padding: 3px 3px 3px 0.5em ;
     border-left: 1em solid #0a0;
     border-bottom: 1px solid #0a0;
     clear: both;
 }
 
+div.header {
+    width: 964px;
+    height: 60px;
+    margin: 0 auto 15px 20px;
+}
+
 div.ad {
     float: left;
     width: 468px;
     height: 60px;
+    text-align: center;
 }
 
 div#login {
-    margin: 20px;
+    float: right;
+    width: 300px;
+    margin: 0;
     font-size: 12px;
     text-align: right;
+}
+div.clear {
+    clear: both;
 }
 
 div#login img {

@@ -17,7 +17,8 @@
 </head>
 <link rel="stylesheet" href="/style.css" type="text/css">
 <body>
-
+<div class="contents">
+<div class="header">
 <div class="ad">
 <script type="text/javascript"><!--
 google_ad_client = "ca-pub-4628387712169493";
@@ -37,6 +38,8 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 % } else {
 <div id="login">ログインしていません / <a href="<%= url_for('login') %>?event_id=<%= $event_id %>"><img src="http://a0.twimg.com/images/dev/buttons/sign-in-with-twitter-l-sm.png" width="126" height="16" /></a></div>
 % }
+<div class="clear">&nbsp;</div>
+</div>
 
 <h1>座席表 [ <%= $event->{title} %> ]</h1>
 <table border="1" class="seats">
@@ -102,6 +105,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 <p>作った人: Aki<a href="http://twitter.com/nekoruri/">@nekoruri</a></p>
 </address>
 
+</div>
 </body>
 </html>
 
