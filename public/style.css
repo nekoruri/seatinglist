@@ -61,6 +61,16 @@ h1 {
     border-bottom: 1px solid #55a;
 }
 
+h2 {
+    margin-top: 0.5em;
+    margin-bottom: 5px;
+    border-bottom: 1px solid #55a;
+}
+
+h2, dl {
+    margin-left: 20px;
+}
+
 div.header {
     width: 964px;
     height: 60px;
@@ -110,3 +120,29 @@ table.seats img {
 .qpstudy {
     display: none;
 }
+
+/* Copied from http://bowz.info/1337 */
+dl {
+    padding: 0;
+    border-right: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+}
+
+dl dt {
+    margin: 0;
+    padding: 0.5em 0 0.1em 1em;
+    border-top: 1px solid #ccc;
+    width: 8em;
+    float: left;
+    color: #333;
+}
+    
+dl dd {
+    margin: 0 0 0 8em;
+    padding: 0.5em 1em;
+    border-left: 1px solid #ccc;
+    border-top: 1px solid #ccc;
+    color: #666;
+}
+

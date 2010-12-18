@@ -89,8 +89,16 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 % }
 </tbody></table>
 
-<hr />
-<p>備考:</p>
+% if ( $atnd_event ) {
+<h2>ATND情報</h2>
+<dl>
+    <dt>イベントID</dt>
+        <dd><a href="http://atnd.org/events/<%= $atnd_event->{event_id}{content} %>"><%= $atnd_event->{event_id}{content} %></a> <%= $atnd_event->{title} %></dd>
+    <dt>場所</dt>
+        <dd><%= $atnd_event->{place} %></dd>
+</dl>
+% }
+<h2>備考</h2>
 <ul>
 <li><a href="http://twitter.com/synboo/">@synboo</a>さんの作成された<a href="http://synboo.com/twitterconf2/">twitterconf2の座席表システム</a><del>をパクった</del>にインスパイアされて作った座席表システムです。</li>
 <li>ｲﾏｺｺを押すと、Twitterの認証画面経由で座席表のその席を登録できます。</li>

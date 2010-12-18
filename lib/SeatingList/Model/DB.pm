@@ -30,7 +30,7 @@ sub generate_seats
     my $self = shift;
     my ( $event_id ) = @_;
 
-    my $sql = 'SELECT title, seats_X, seats_Y FROM events WHERE id = ?';
+    my $sql = 'SELECT title, seats_X, seats_Y, atnd_event_id FROM events WHERE id = ?';
     my $sth = $self->dbh->prepare($sql);
     $sth->execute($event_id);
 

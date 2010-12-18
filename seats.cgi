@@ -5,6 +5,7 @@ use Mojolicious::Lite;
 use Net::Twitter::Lite;
 use Data::Dumper;
 use Config::Pit;
+use WebService::Simple;
 
 use lib app->home->rel_file('lib');
 use SeatingList::Model::DB;
@@ -95,6 +96,20 @@ get '/:event_id' => sub {
     my $user = verify_credentials($self);
     if ($user) {
         $self->stash(screen_name => $user->{screen_name});
+    }
+
+    my $atnd_event_id = $event->{atnd_event_id};
+warn( "atnd_event_id: $atnd_event_id" );
+    if ( $atnd_event_id ) {
+        my $atnd_api_url = 'http://api.atnd.org/events/';
+        my $atnd = WebService::Simple->new(
+            base_url => $atnd_api_url,
+            param => {},
+        );
+        my $atnd_event = $atnd->get({ event_id => $atnd_event_id })->parse_response->{events}{event};
+        $self->stash(atnd_event => $atnd_event);
+    } else {
+        $self->stash(atnd_event => undef);
     }
 
     $self->stash(admin => 0);

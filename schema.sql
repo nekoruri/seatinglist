@@ -5,6 +5,7 @@ CREATE TABLE events (
     URL TEXT,
     seats_X TINYINT UNSIGNED NOT NULL,
     seats_Y TINYINT UNSIGNED NOT NULL
+    atnd_event_id INT UNSIGNED DEFAULT NULL,
 ) ENGINE=InnoDB;
 
 CREATE TABLE seats (
