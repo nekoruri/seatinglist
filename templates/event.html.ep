@@ -1,6 +1,6 @@
 <html>
 <head>
-    <title>座席表 [ <%= $event->{title} %> ]</title>
+    <title>イベント座席表 [ <%= $event->{title} %> ]</title>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
     <script type="text/javascript">
       var _gaq = _gaq || [];
@@ -41,7 +41,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 <div class="clear">&nbsp;</div>
 </div>
 
-<h1>座席表 [ <%= $event->{title} %> ]</h1>
+<h1>イベント座席表 [ <%= $event->{title} %> ]</h1>
 <table border="1" class="seats">
     <thead>
     <tr><th colspan="<%= $event->{seats_X}+1 %>">前</th></tr>

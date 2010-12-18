@@ -54,11 +54,11 @@ address {
 }
 
 h1 {
-    margin: 0.5em 0.5em 0.5em 20px;
+    font-size: x-large;
+    margin: 0.5em 0.5em 0 20px;
     padding: 3px 3px 3px 0.5em ;
-    border-left: 1em solid #0a0;
-    border-bottom: 1px solid #0a0;
-    clear: both;
+    border-left: 1em solid #55a;
+    border-bottom: 1px solid #55a;
 }
 
 div.header {
