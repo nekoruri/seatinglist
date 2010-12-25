@@ -83,18 +83,18 @@ sub update_seat
     my $profile_image_url = $user->{profile_image_url};
 
     # 以前座っていた席を無効化
-    my $sql = 'UPDATE seats SET unregistered_at = NOW() WHERE event_id = ? AND twitter_user_id = ?';
+    my $sql = 'UPDATE seats SET unregistered_at = CURRENT_TIMESTAMP WHERE event_id = ? AND twitter_user_id = ?';
     my $sth = $self->dbh->prepare($sql);
     $sth->execute($event_id, $user_id);
 
     # 座席情報を追加 (置き換えはしない)
-    $sql = 'INSERT INTO seats ( event_id, seat_X, seat_Y, twitter_user_id, registered_at ) VALUE ( ?, ?, ?, ?, NOW() )';
+    $sql = 'INSERT INTO seats ( event_id, seat_X, seat_Y, twitter_user_id, registered_at ) VALUES ( ?, ?, ?, ?, CURRENT_TIMESTAMP )';
     $sth = $self->dbh->prepare($sql);
     $sth->execute($event_id, $seat_X, $seat_Y, $user_id);
 
     # Twitterユーザ情報キャッシュを更新
     # user_idがプライマリキーなので既存レコードがあれば更新
-    $sql = 'REPLACE INTO twitter_user_cache ( user_id, screen_name, profile_image_url ) VALUE ( ?, ?, ? )';
+    $sql = 'REPLACE INTO twitter_user_cache ( user_id, screen_name, profile_image_url ) VALUES ( ?, ?, ? )';
     $sth = $self->dbh->prepare($sql);
     $sth->execute($user_id, $screen_name, $profile_image_url);
 }
@@ -104,7 +104,7 @@ sub disable_seat
     my $self = shift;
     my ( $event_id, $seat_X, $seat_Y ) = @_;
 
-    my $sql = 'INSERT INTO seats ( event_id, seat_X, seat_Y, twitter_user_id, registered_at, is_enabled ) VALUE ( ?, ?, ?, 0, NOW(), 0 )';
+    my $sql = 'INSERT INTO seats ( event_id, seat_X, seat_Y, twitter_user_id, registered_at, is_enabled ) VALUES ( ?, ?, ?, 0, CURRENT_TIMESTAMP, 0 )';
     my $sth = $self->dbh->prepare($sql);
     $sth->execute($event_id, $seat_X, $seat_Y);
 }
@@ -114,7 +114,7 @@ sub enable_seat
     my $self = shift;
     my ( $event_id, $seat_X, $seat_Y ) = @_;
 
-    my $sql = 'UPDATE seats SET unregistered_at = NOW() WHERE event_id = ? AND seat_X = ? AND seat_Y = ? AND is_enabled = 0 AND unregistered_at IS NULL';
+    my $sql = 'UPDATE seats SET unregistered_at = CURRENT_TIMESTAMP WHERE event_id = ? AND seat_X = ? AND seat_Y = ? AND is_enabled = 0 AND unregistered_at IS NULL';
     my $sth = $self->dbh->prepare($sql);
     $sth->execute($event_id, $seat_X, $seat_Y);
 }
@@ -124,7 +124,7 @@ sub remove_seat
     my $self = shift;
     my ( $event_id, $seat_X, $seat_Y ) = @_;
 
-    my $sql = 'UPDATE seats SET unregistered_at = NOW() WHERE event_id = ? AND seat_X = ? AND seat_Y = ? AND is_enabled = 1 AND unregistered_at IS NULL';
+    my $sql = 'UPDATE seats SET unregistered_at = CURRENT_TIMESTAMP WHERE event_id = ? AND seat_X = ? AND seat_Y = ? AND is_enabled = 1 AND unregistered_at IS NULL';
     my $sth = $self->dbh->prepare($sql);
     $sth->execute($event_id, $seat_X, $seat_Y);
 }
