@@ -17,7 +17,7 @@ sub init {
         $config->{db_dsn},
         $config->{db_username},
         $config->{db_password},
-        { mysql_enable_utf8 => 1 }
+        { mysql_enable_utf8 => 1, mysql_auto_reconnect => 1 }
     );
 
     $self->dbh($dbh);
