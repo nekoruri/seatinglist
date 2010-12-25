@@ -3,10 +3,10 @@ use strict;
 use warnings;
 
 use Data::Dumper;
-use Test::More tests => 3;
+use Test::More tests => 4;
 
 use lib 'lib';
-use SeatingList::Model::DB;
+BEGIN { use_ok('SeatingList::Model::DB') }
 
 my $config = {
     db_dsn => 'dbi:SQLite:',
