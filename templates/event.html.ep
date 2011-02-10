@@ -55,7 +55,14 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 %      foreach my $x ( 0 ... $event->{seats_X}-1 ) {
 %          if ( my $seat = $seats->[$x][$y] ) {
 %              if ( $seat->{is_enabled} ) {
-        <td<%== ($seat->{screen_name} eq $screen_name ? q{ class="myself"} : '') %>>
+%                  my @classes;
+%                  foreach my $enq ( keys %{$seat->{enquete_result}} ) {
+%                      push @classes, 'enq'.$enq.'_'.$seat->{enquete_result}{$enq};
+%                  }
+%                  if ( $seat->{screen_name} eq $screen_name ) {
+%                      push @classes, 'myself';
+%                  }
+        <td class="<%= join ' ', @classes %>">
         <form method="POST" action="/<%= $event_id %>/seat/<%= $x %>/<%= $y %>">
             <div class="screen_name"><%= $seat->{screen_name} %></div>
             <a href="http://twitter.com/<%= $seat->{screen_name} %>"><img src="<%= $seat->{profile_image_url} %>" /></a><br />

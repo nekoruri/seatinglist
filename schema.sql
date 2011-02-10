@@ -16,6 +16,7 @@ CREATE TABLE seats (
     twitter_user_id INT UNSIGNED NOT NULL,
     registered_at DATETIME NOT NULL,
     unregistered_at DATETIME NULL,
+    enquete_result_yaml TEXT NOT NULL DEFAULT '',
     is_enabled TINYINT(1) NOT NULL DEFAULT 1,
     is_machismo TINYINT(1) NULL
 ) ENGINE=InnoDB;

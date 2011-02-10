@@ -46,7 +46,7 @@ sub generate_seats
         $seats->[$i][$seats_Y-1] = undef;
     }
 
-    $sql = 'SELECT seat_X, seat_Y, user_id, screen_name, profile_image_url, is_enabled, is_machismo FROM seats LEFT JOIN twitter_user_cache ON seats.twitter_user_id = twitter_user_cache.user_id WHERE event_id = ? AND unregistered_at IS NULL ORDER BY registered_at';
+    $sql = 'SELECT seat_X, seat_Y, user_id, screen_name, profile_image_url, is_enabled, is_machismo, enquete_result_yaml FROM seats LEFT JOIN twitter_user_cache ON seats.twitter_user_id = twitter_user_cache.user_id WHERE event_id = ? AND unregistered_at IS NULL ORDER BY registered_at';
     $sth = $self->dbh->prepare($sql);
     $sth->execute($event_id);
 
@@ -56,7 +56,11 @@ sub generate_seats
         # X,Yが同じものは新しい値で上書き
         if ( $row[5] ) {
             # 座席情報
-            $seats->[$row[0]][$row[1]] = { user_id => $row[2], screen_name => $row[3], profile_image_url => $row[4], is_enabled => 1, is_machismo => $row[6] };
+            my $enquete_result = eval { YAML::Syck::Load($row[7]) };
+            if ($@) {
+                $enquete_result = {};
+            }
+            $seats->[$row[0]][$row[1]] = { user_id => $row[2], screen_name => $row[3], profile_image_url => $row[4], is_enabled => 1, is_machismo => $row[6], enquete_result => $enquete_result };
             if ( defined($row[6]) ) {
                 if ( $row[6] == 1 ) {
                     $event->{machismo}++;
