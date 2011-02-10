@@ -25,6 +25,22 @@ sub init {
     return $self;
 }
 
+sub fetch_event_enquetes
+{
+    my $self = shift;
+    my ( $event_id ) = @_;
+    return if (!defined $event_id);
+
+    my $sql = 'SELECT id, short_title, question, opt1_text, opt1_color, opt2_text, opt2_color, opt3_text, opt3_color, opt4_text, opt4_color, opt5_text, opt5_color, opt6_text, opt6_color, opt7_text, opt7_color, opt8_text, opt8_color, opt9_text, opt9_color, opt10_text, opt10_color FROM enquete WHERE event_id = ?';
+    my $sth = $self->dbh->prepare($sql);
+    $sth->execute($event_id);
+    my $enquetes = [];
+    while (my $row = $sth->fetchrow_hashref) {
+        push @$enquetes, $row;
+    }
+    return $enquetes;
+}
+
 sub generate_seats
 {
     my $self = shift;
@@ -57,7 +73,7 @@ sub generate_seats
         if ( $row[5] ) {
             # 座席情報
             my $enquete_result = eval { YAML::Syck::Load($row[7]) };
-            if ($@) {
+            if ($@ || ref($enquete_result) ne 'HASH') {
                 $enquete_result = {};
             }
             $seats->[$row[0]][$row[1]] = { user_id => $row[2], screen_name => $row[3], profile_image_url => $row[4], is_enabled => 1, is_machismo => $row[6], enquete_result => $enquete_result };

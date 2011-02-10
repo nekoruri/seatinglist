@@ -13,6 +13,18 @@
         var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
       })();
 
+
+     $(function(){
+% foreach my $enquete ( @$enquetes ) {
+         $("a.enq<%= $enquete->{id} %>").click(function(){
+%   foreach my $opt ( 1 .. 10 ) {
+%       if ($enquete->{'opt'.$opt.'_text'}) {
+             $("td.enq<%= $enquete->{id} %>_<%= $opt %>").css("background-color","<%= $enquete->{'opt'.$opt.'_color'} %>");
+%       }
+%   }
+         })
+% }
+     })
     </script>
 </head>
 <link rel="stylesheet" href="/style.css" type="text/css">
@@ -42,6 +54,13 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 </div>
 
 <h1>イベント座席表 [ <%= $event->{title} %> ]</h1>
+% if ( @$enquetes > 0 ) {
+<p>
+%   foreach my $enquete ( @$enquetes ) {
+[ <a href="#" class="enq1"><%= $enquete->{short_title} %></a> ]
+%   }
+</p>
+% }
 <table border="1" class="seats">
     <thead>
     <tr><th colspan="<%= $event->{seats_X}+1 %>">前</th></tr>
