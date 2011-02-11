@@ -252,7 +252,7 @@ get '/:event_id/enquete_form' => sub {
     my $self = shift;
     my $event_id = $self->param('event_id');
 
-    my $user = $tw->verify_credentials;
+    my $user = eval { $tw->verify_credentials };
     if (!$user) { 
         $self->render('event_enquete_nologin');
         return;
@@ -268,7 +268,7 @@ post '/:event_id/enquete' => sub {
     my $self = shift;
     my $event_id = $self->param('event_id');
 
-    my $user = $tw->verify_credentials;
+    my $user = eval { $tw->verify_credentials };
     if (!$user) { 
         $self->render('event_enquete_nologin');
         return;
