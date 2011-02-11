@@ -27,9 +27,6 @@
          })
 % }
      })
-     function reload(){
-         window.reload();
-     }
     </script>
 </head>
 <link rel="stylesheet" href="/style.css" type="text/css">
