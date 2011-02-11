@@ -31,7 +31,7 @@ sub fetch_event_enquetes
     my ( $event_id ) = @_;
     return if (!defined $event_id);
 
-    my $sql = 'SELECT id, short_title, question, opt1_text, opt1_color, opt2_text, opt2_color, opt3_text, opt3_color, opt4_text, opt4_color, opt5_text, opt5_color, opt6_text, opt6_color, opt7_text, opt7_color, opt8_text, opt8_color, opt9_text, opt9_color, opt10_text, opt10_color FROM enquete WHERE event_id = ?';
+    my $sql = 'SELECT id, short_title, question, opt1_text, opt1_color, opt2_text, opt2_color, opt3_text, opt3_color, opt4_text, opt4_color, opt5_text, opt5_color, opt6_text, opt6_color, opt7_text, opt7_color, opt8_text, opt8_color, opt9_text, opt9_color, opt10_text, opt10_color FROM enquete WHERE event_id = ? ORDER BY created_at';
     my $sth = $self->dbh->prepare($sql);
     $sth->execute($event_id);
     my $enquetes = [];
