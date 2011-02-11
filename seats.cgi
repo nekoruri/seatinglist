@@ -6,6 +6,7 @@ use Net::Twitter::Lite;
 use Data::Dumper;
 use Config::Pit;
 use WebService::Simple;
+use Cache::File;
 
 use lib app->home->rel_file('lib');
 use SeatingList::Model::DB;
@@ -99,14 +100,25 @@ get '/:event_id' => sub {
     }
 
     my $atnd_event_id = $event->{atnd_event_id};
-warn( "atnd_event_id: $atnd_event_id" );
+#warn( "atnd_event_id: $atnd_event_id" );
     if ( $atnd_event_id ) {
         my $atnd_api_url = 'http://api.atnd.org/events/';
+        my $cache_root = app->home->rel_file('tmp/cache');
+        if ( ! -d $cache_root ) {
+            mkdir $cache_root;
+        }
+        my $cache   = Cache::File->new(
+            cache_root      => $cache_root,
+            default_expires => '30 min',
+        );
         my $atnd = WebService::Simple->new(
             base_url => $atnd_api_url,
+#            cache => $cache,
             param => {},
         );
-        my $atnd_event = $atnd->get({ event_id => $atnd_event_id })->parse_response->{events}{event};
+        my $response = $atnd->get({ event_id => $atnd_event_id });
+warn Dumper($response);
+        my $atnd_event = $response->parse_response->{events}{event};
         $self->stash(atnd_event => $atnd_event);
     } else {
         $self->stash(atnd_event => undef);
@@ -139,6 +151,7 @@ get '/:event_id/admin' => sub {
         }
     };
 
+    $self->stash(atnd_event => undef);
     $self->stash(admin => 1);
     $self->stash(event => $event);
     $self->stash(seats => $seats);
