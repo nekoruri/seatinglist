@@ -2,6 +2,7 @@
 <head>
     <title>イベント座席表 [ <%= $event->{title} %> ]</title>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+    <script type="text/javascript" src="js/thickbox.js"></script>
     <script type="text/javascript">
       var _gaq = _gaq || [];
       _gaq.push(['_setAccount', 'UA-19946424-1']);
@@ -19,15 +20,20 @@
          $("a.enq<%= $enquete->{id} %>").click(function(){
 %   foreach my $opt ( 1 .. 10 ) {
 %       if ($enquete->{'opt'.$opt.'_text'}) {
-             $("td.enq<%= $enquete->{id} %>_<%= $opt %>").css("background-color","<%= $enquete->{'opt'.$opt.'_color'} %>");
+            $("td.enq<%= $enquete->{id} %>_<%= $opt %>").css("background-color","<%= $enquete->{'opt'.$opt.'_color'} %>");
 %       }
 %   }
+            return false;
          })
 % }
      })
+     function reload(){
+         window.reload();
+     }
     </script>
 </head>
 <link rel="stylesheet" href="/style.css" type="text/css">
+<link rel="stylesheet" href="/thickbox.css" type="text/css">
 <body>
 <div class="contents">
 <div class="header">
@@ -59,6 +65,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 %   foreach my $enquete ( @$enquetes ) {
 [ <a href="#" class="enq1"><%= $enquete->{short_title} %></a> ]
 %   }
+[ <a href="/<%= $event_id %>/enquete_form?TB_iframe=true&height=300&width=600" title="表示する" class="thickbox">アンケートに回答</a> ]
 </p>
 % }
 <table border="1" class="seats">

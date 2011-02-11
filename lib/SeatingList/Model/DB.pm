@@ -169,6 +169,19 @@ sub nomachismo_seat
     $sth->execute($event_id, $seat_X, $seat_Y);
 }
 
+# アンケート回答をYAMLにして保存
+sub enquete_update
+{
+    my $self = shift;
+    my ( $event_id, $user, $enquete_result ) = @_;
+
+    my $enquete_result_yaml = eval { YAML::Syck::Dump($enquete_result) };
+
+    my $sql = 'UPDATE seats SET enquete_result_yaml = ? WHERE event_id = ? AND twitter_user_id = ? AND is_enabled = 1 AND unregistered_at IS NULL';
+    my $sth = $self->dbh->prepare($sql);
+    $sth->execute($enquete_result_yaml, $event_id, $user->{id});
+}
+
 # 全てのイベントをID順に表示
 sub search_all_events
 {

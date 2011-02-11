@@ -234,6 +234,47 @@ get '/:event_id/seat/:x/:y/enable' => sub {
     $self->redirect_to($self->url_for('event')->to_abs."$event_id/admin");
 };
 
+# アンケートフォームを表示
+get '/:event_id/enquete_form' => sub {
+    my $self = shift;
+    my $event_id = $self->param('event_id');
+
+    my $user = $tw->verify_credentials;
+    if (!$user) { 
+        $self->render('event_enquete_nologin');
+        return;
+    }
+
+    $self->stash(enquetes => $db->fetch_event_enquetes($event_id));
+
+    $self->render('event_enquete_form');
+} => 'event_enquete_form';
+
+# アンケートの回答
+post '/:event_id/enquete' => sub {
+    my $self = shift;
+    my $event_id = $self->param('event_id');
+
+    my $user = $tw->verify_credentials;
+    if (!$user) { 
+        $self->render('event_enquete_nologin');
+        return;
+    }
+
+    my $enquetes = $db->fetch_event_enquetes($event_id);
+    my $enquete_ids = map { $_->{id} } @$enquetes;
+
+    my $result = {};
+    foreach my $enquete_id ( $enquete_ids ) {
+        if ( my $opt = $self->param('enq'.$enquete_id) ) {
+            $result->{$enquete_id} = $opt;
+        }
+    }
+
+    $db->enquete_update($event_id, $user, $result);
+    $self->render('event_enquete_done');
+} => 'event_enquete';
+
 app->types->type(html => 'text/html; charset=utf-8');
 app->start;
 
