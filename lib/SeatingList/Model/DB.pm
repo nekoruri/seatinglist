@@ -102,15 +102,24 @@ sub update_seat
     my $screen_name = $user->{screen_name};
     my $profile_image_url = $user->{profile_image_url};
 
-    # 以前座っていた席を無効化
-    my $sql = 'UPDATE seats SET unregistered_at = CURRENT_TIMESTAMP WHERE event_id = ? AND twitter_user_id = ?';
+    # 以前座っていた席(最新1件)の情報を取得
+    my $sql = 'SELECT enquete_result_yaml, is_machismo FROM seats WHERE event_id = ? AND twitter_user_id = ? AND is_enabled = 1 AND unregistered_at IS NULL ORDER BY registered_at DESC LIMIT 1';
+warn $sql;
     my $sth = $self->dbh->prepare($sql);
+    $sth->execute($event_id, $user_id);
+    my ($enquete_result_yaml, $is_machismo ) = $sth->fetchrow_array;
+    $enquete_result_yaml = '' if (!defined $enquete_result_yaml);
+warn "enquete_result_yaml: [$enquete_result_yaml]";
+
+    # 以前座っていた席を全て無効化
+    $sql = 'UPDATE seats SET unregistered_at = CURRENT_TIMESTAMP WHERE event_id = ? AND twitter_user_id = ?';
+    $sth = $self->dbh->prepare($sql);
     $sth->execute($event_id, $user_id);
 
     # 座席情報を追加 (置き換えはしない)
-    $sql = 'INSERT INTO seats ( event_id, seat_X, seat_Y, twitter_user_id, registered_at ) VALUES ( ?, ?, ?, ?, CURRENT_TIMESTAMP )';
+    $sql = 'INSERT INTO seats ( event_id, seat_X, seat_Y, twitter_user_id, enquete_result_yaml, is_machismo, registered_at ) VALUES ( ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP )';
     $sth = $self->dbh->prepare($sql);
-    $sth->execute($event_id, $seat_X, $seat_Y, $user_id);
+    $sth->execute($event_id, $seat_X, $seat_Y, $user_id, $enquete_result_yaml, $is_machismo);
 
     # Twitterユーザ情報キャッシュを更新
     # user_idがプライマリキーなので既存レコードがあれば更新
