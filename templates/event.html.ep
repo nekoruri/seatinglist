@@ -63,7 +63,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 % if ( @$enquetes > 0 ) {
 <p>アンケート結果の色分け表示:<br />
 %   foreach my $enquete ( @$enquetes ) {
-[ <a href="#" class="enq1"><%= $enquete->{short_title} %></a> ]
+[ <a href="#" class="enq<%= $enquete->{id} %>"><%= $enquete->{short_title} %></a> ]
 %   }
 <br />[ <a href="/<%= $event_id %>/enquete_form?TB_iframe=true&height=300&width=600" title="表示する" class="thickbox">アンケートに回答</a> ]
 </p>
