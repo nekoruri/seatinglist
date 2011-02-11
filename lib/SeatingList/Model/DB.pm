@@ -78,12 +78,17 @@ sub generate_seats
                 $enquete_result = {};
             }
             $seats->[$row[0]][$row[1]] = { user_id => $row[2], screen_name => $row[3], profile_image_url => $row[4], is_enabled => 1, is_machismo => $row[6], enquete_result => $enquete_result };
+            # マッチョ集計
             if ( defined($row[6]) ) {
                 if ( $row[6] == 1 ) {
                     $event->{machismo}++;
                 } else {
                     $event->{nomachismo}++;
                 }
+            }
+            # アンケート集計
+            foreach my $enq ( keys %$enquete_result ) {
+                $event->{enquete_summary}{$enq}{$enquete_result->{$enq}}++;
             }
         } else { 
             # 予約席

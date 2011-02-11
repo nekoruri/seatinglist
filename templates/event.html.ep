@@ -21,6 +21,7 @@
             $("td.enq<%= $enquete->{id} %>_<%= $opt %>").css("background-color","inherit");
             $("#opt<%= $opt %>").css("background-color","inherit");
             $("#opt<%= $opt %>_text").text("");
+            $("#opt<%= $opt %>_count").text("");
 %       }
 %   }
      }
@@ -40,6 +41,7 @@
             $("td.enq<%= $enquete->{id} %>_<%= $opt %>").css("background-color","<%= $enquete->{'opt'.$opt.'_color'} %>");
             $("#opt<%= $opt %>").css("background-color","<%= $enquete->{'opt'.$opt.'_color'} %>");
             $("#opt<%= $opt %>_text").text("<%= $enquete->{'opt'.$opt.'_text'} %>");
+            $("#opt<%= $opt %>_count").text("<%= $event->{enquete_summary}{$enquete->{id}}{$opt} %>");
             $("#enqueteinfo").show('normal');
 %       }
 %   }
@@ -113,6 +115,18 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
     <td id="opt8" />
     <td id="opt9" />
     <td id="opt10" />
+  </tr>
+  <tr>
+    <td id="opt1_count" />
+    <td id="opt2_count" />
+    <td id="opt3_count" />
+    <td id="opt4_count" />
+    <td id="opt5_count" />
+    <td id="opt6_count" />
+    <td id="opt7_count" />
+    <td id="opt8_count" />
+    <td id="opt9_count" />
+    <td id="opt10_count" />
   </tr>
 </table>
 </div>
