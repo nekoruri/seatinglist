@@ -117,7 +117,7 @@ get '/:event_id' => sub {
             param => {},
         );
         my $response = $atnd->get({ event_id => $atnd_event_id });
-warn Dumper($response);
+#warn Dumper($response);
         my $atnd_event = $response->parse_response->{events}{event};
         $self->stash(atnd_event => $atnd_event);
     } else {
