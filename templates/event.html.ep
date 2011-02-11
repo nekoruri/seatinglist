@@ -14,13 +14,33 @@
         var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
       })();
 
+     function clear(){
+% foreach my $enquete ( @$enquetes ) {
+        $("#question").text("<%= $enquete->{question} %>");
+%   foreach my $opt ( 1 .. 10 ) {
+            $("td.enq<%= $enquete->{id} %>_<%= $opt %>").css("background-color","inherit");
+            $("#opt<%= $opt %>").css("background-color","inherit");
+            $("#opt<%= $opt %>_text").text("");
+%       }
+%   }
+     }
 
      $(function(){
+         $("a.enqclear").click(function(){
+            $("#enqueteinfo").hide('normal');
+            clear();
+            return false;
+         })
 % foreach my $enquete ( @$enquetes ) {
          $("a.enq<%= $enquete->{id} %>").click(function(){
+            clear();
+            $("#question").text("<%= $enquete->{question} %>");
 %   foreach my $opt ( 1 .. 10 ) {
 %       if ($enquete->{'opt'.$opt.'_text'}) {
             $("td.enq<%= $enquete->{id} %>_<%= $opt %>").css("background-color","<%= $enquete->{'opt'.$opt.'_color'} %>");
+            $("#opt<%= $opt %>").css("background-color","<%= $enquete->{'opt'.$opt.'_color'} %>");
+            $("#opt<%= $opt %>_text").text("<%= $enquete->{'opt'.$opt.'_text'} %>");
+            $("#enqueteinfo").show('normal');
 %       }
 %   }
             return false;
@@ -59,12 +79,44 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 <h1>イベント座席表 [ <%= $event->{title} %> ]</h1>
 % if ( @$enquetes > 0 ) {
 <p>アンケート結果の色分け表示:<br />
+[ <a href="#" class="enqclear">通常表示</a> ]
 %   foreach my $enquete ( @$enquetes ) {
 [ <a href="#" class="enq<%= $enquete->{id} %>"><%= $enquete->{short_title} %></a> ]
 %   }
 <br />[ <a href="/<%= $event_id %>/enquete_form?TB_iframe=true&height=300&width=600" title="表示する" class="thickbox">アンケートに回答</a> ]
 </p>
 % }
+
+<div id="enqueteinfo" style="display: none">
+<table border="1">
+  <tr><td colspan="10" id="question"></th></tr>
+  <tr>
+    <th id="opt1_text"></th>
+    <th id="opt2_text"></th>
+    <th id="opt3_text"></th>
+    <th id="opt4_text"></th>
+    <th id="opt5_text"></th>
+    <th id="opt6_text"></th>
+    <th id="opt7_text"></th>
+    <th id="opt8_text"></th>
+    <th id="opt9_text"></th>
+    <th id="opt10_text"></th>
+  </tr>
+  <tr>
+    <td id="opt1" />
+    <td id="opt2" />
+    <td id="opt3" />
+    <td id="opt4" />
+    <td id="opt5" />
+    <td id="opt6" />
+    <td id="opt7" />
+    <td id="opt8" />
+    <td id="opt9" />
+    <td id="opt10" />
+  </tr>
+</table>
+</div>
+
 <table border="1" class="seats">
     <thead>
     <tr><th colspan="<%= $event->{seats_X}+1 %>">前</th></tr>
