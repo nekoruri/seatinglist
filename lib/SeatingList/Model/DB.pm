@@ -6,6 +6,7 @@ use warnings;
 use base 'Mojo::Base';
 
 use DBI;
+use Data::Dumper;
 
 __PACKAGE__->attr('dbh');
 
@@ -104,12 +105,10 @@ sub update_seat
 
     # 以前座っていた席(最新1件)の情報を取得
     my $sql = 'SELECT enquete_result_yaml, is_machismo FROM seats WHERE event_id = ? AND twitter_user_id = ? AND is_enabled = 1 AND unregistered_at IS NULL ORDER BY registered_at DESC LIMIT 1';
-warn $sql;
     my $sth = $self->dbh->prepare($sql);
     $sth->execute($event_id, $user_id);
     my ($enquete_result_yaml, $is_machismo ) = $sth->fetchrow_array;
     $enquete_result_yaml = '' if (!defined $enquete_result_yaml);
-warn "enquete_result_yaml: [$enquete_result_yaml]";
 
     # 以前座っていた席を全て無効化
     $sql = 'UPDATE seats SET unregistered_at = CURRENT_TIMESTAMP WHERE event_id = ? AND twitter_user_id = ?';
