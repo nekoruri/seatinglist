@@ -2,6 +2,7 @@
 <head>
     <title>イベント座席表 [ <%= $event->{title} %> ]</title>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+    <script type="text/javascript" src="js/thickbox.js"></script>
     <script type="text/javascript">
       var _gaq = _gaq || [];
       _gaq.push(['_setAccount', 'UA-19946424-1']);
@@ -13,9 +14,26 @@
         var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
       })();
 
+
+     $(function(){
+% foreach my $enquete ( @$enquetes ) {
+         $("a.enq<%= $enquete->{id} %>").click(function(){
+%   foreach my $opt ( 1 .. 10 ) {
+%       if ($enquete->{'opt'.$opt.'_text'}) {
+            $("td.enq<%= $enquete->{id} %>_<%= $opt %>").css("background-color","<%= $enquete->{'opt'.$opt.'_color'} %>");
+%       }
+%   }
+            return false;
+         })
+% }
+     })
+     function reload(){
+         window.reload();
+     }
     </script>
 </head>
 <link rel="stylesheet" href="/style.css" type="text/css">
+<link rel="stylesheet" href="/thickbox.css" type="text/css">
 <body>
 <div class="contents">
 <div class="header">
@@ -42,6 +60,14 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 </div>
 
 <h1>イベント座席表 [ <%= $event->{title} %> ]</h1>
+% if ( @$enquetes > 0 ) {
+<p>
+%   foreach my $enquete ( @$enquetes ) {
+[ <a href="#" class="enq1"><%= $enquete->{short_title} %></a> ]
+%   }
+[ <a href="/<%= $event_id %>/enquete_form?TB_iframe=true&height=300&width=600" title="表示する" class="thickbox">アンケートに回答</a> ]
+</p>
+% }
 <table border="1" class="seats">
     <thead>
     <tr><th colspan="<%= $event->{seats_X}+1 %>">前</th></tr>
@@ -55,7 +81,14 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 %      foreach my $x ( 0 ... $event->{seats_X}-1 ) {
 %          if ( my $seat = $seats->[$x][$y] ) {
 %              if ( $seat->{is_enabled} ) {
-        <td<%== ($seat->{screen_name} eq $screen_name ? q{ class="myself"} : '') %>>
+%                  my @classes;
+%                  foreach my $enq ( keys %{$seat->{enquete_result}} ) {
+%                      push @classes, 'enq'.$enq.'_'.$seat->{enquete_result}{$enq};
+%                  }
+%                  if ( $seat->{screen_name} eq $screen_name ) {
+%                      push @classes, 'myself';
+%                  }
+        <td class="<%= join ' ', @classes %>">
         <form method="POST" action="/<%= $event_id %>/seat/<%= $x %>/<%= $y %>">
             <div class="screen_name"><%= $seat->{screen_name} %></div>
             <a href="http://twitter.com/<%= $seat->{screen_name} %>"><img src="<%= $seat->{profile_image_url} %>" /></a><br />

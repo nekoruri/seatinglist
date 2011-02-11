@@ -25,6 +25,22 @@ sub init {
     return $self;
 }
 
+sub fetch_event_enquetes
+{
+    my $self = shift;
+    my ( $event_id ) = @_;
+    return if (!defined $event_id);
+
+    my $sql = 'SELECT id, short_title, question, opt1_text, opt1_color, opt2_text, opt2_color, opt3_text, opt3_color, opt4_text, opt4_color, opt5_text, opt5_color, opt6_text, opt6_color, opt7_text, opt7_color, opt8_text, opt8_color, opt9_text, opt9_color, opt10_text, opt10_color FROM enquete WHERE event_id = ? ORDER BY created_at';
+    my $sth = $self->dbh->prepare($sql);
+    $sth->execute($event_id);
+    my $enquetes = [];
+    while (my $row = $sth->fetchrow_hashref) {
+        push @$enquetes, $row;
+    }
+    return $enquetes;
+}
+
 sub generate_seats
 {
     my $self = shift;
@@ -46,7 +62,7 @@ sub generate_seats
         $seats->[$i][$seats_Y-1] = undef;
     }
 
-    $sql = 'SELECT seat_X, seat_Y, user_id, screen_name, profile_image_url, is_enabled, is_machismo FROM seats LEFT JOIN twitter_user_cache ON seats.twitter_user_id = twitter_user_cache.user_id WHERE event_id = ? AND unregistered_at IS NULL ORDER BY registered_at';
+    $sql = 'SELECT seat_X, seat_Y, user_id, screen_name, profile_image_url, is_enabled, is_machismo, enquete_result_yaml FROM seats LEFT JOIN twitter_user_cache ON seats.twitter_user_id = twitter_user_cache.user_id WHERE event_id = ? AND unregistered_at IS NULL ORDER BY registered_at';
     $sth = $self->dbh->prepare($sql);
     $sth->execute($event_id);
 
@@ -56,7 +72,11 @@ sub generate_seats
         # X,Yが同じものは新しい値で上書き
         if ( $row[5] ) {
             # 座席情報
-            $seats->[$row[0]][$row[1]] = { user_id => $row[2], screen_name => $row[3], profile_image_url => $row[4], is_enabled => 1, is_machismo => $row[6] };
+            my $enquete_result = eval { YAML::Syck::Load($row[7]) };
+            if ($@ || ref($enquete_result) ne 'HASH') {
+                $enquete_result = {};
+            }
+            $seats->[$row[0]][$row[1]] = { user_id => $row[2], screen_name => $row[3], profile_image_url => $row[4], is_enabled => 1, is_machismo => $row[6], enquete_result => $enquete_result };
             if ( defined($row[6]) ) {
                 if ( $row[6] == 1 ) {
                     $event->{machismo}++;
@@ -147,6 +167,19 @@ sub nomachismo_seat
     my $sql = 'UPDATE seats SET is_machismo = 0 WHERE event_id = ? AND seat_X = ? AND seat_Y = ? AND is_enabled = 1 AND unregistered_at IS NULL';
     my $sth = $self->dbh->prepare($sql);
     $sth->execute($event_id, $seat_X, $seat_Y);
+}
+
+# アンケート回答をYAMLにして保存
+sub enquete_update
+{
+    my $self = shift;
+    my ( $event_id, $user, $enquete_result ) = @_;
+
+    my $enquete_result_yaml = eval { YAML::Syck::Dump($enquete_result) };
+
+    my $sql = 'UPDATE seats SET enquete_result_yaml = ? WHERE event_id = ? AND twitter_user_id = ? AND is_enabled = 1 AND unregistered_at IS NULL';
+    my $sth = $self->dbh->prepare($sql);
+    $sth->execute($enquete_result_yaml, $event_id, $user->{id});
 }
 
 # 全てのイベントをID順に表示

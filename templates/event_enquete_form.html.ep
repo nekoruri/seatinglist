@@ -1,0 +1,17 @@
+<form method="POST" action="/<%= $event_id %>/enquete">
+<table>
+% foreach my $enquete ( @$enquetes ) {
+    <tr>
+        <td colspan="2"><%= $enquete->{question} %></td>
+        <td /><td><select name="enq<%= $enquete->{id} %>">
+%   foreach my $opt ( 1 .. 10 ) {
+%       if ( $enquete->{'opt'.$opt.'_text'} ) {
+            <option value="<%= $opt %>" ><%= $enquete->{'opt'.$opt.'_text'} %></option>
+%       }
+%   }
+        </select></td>
+    </tr>
+% }
+    <tr><td colspan="2"><input type="submit" value="送信" /></td>
+</table>
+</form>

@@ -1,0 +1,2 @@
+<p>アンケートの回答にはログインが必要です。</p>
+<p><a href="#" onclick="self.parent.tb_remove(); return false;">閉じる</a></p>

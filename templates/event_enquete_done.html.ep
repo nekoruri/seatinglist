@@ -1,0 +1,3 @@
+<h1>アンケート回答を送信しました。</h1>
+<p><a href="#" onclick="self.parent.tb_remove(); return false;">閉じる</a></p>
+<p>(現在の不具合) 座席表への反映は、リロードが必要です。</p>
