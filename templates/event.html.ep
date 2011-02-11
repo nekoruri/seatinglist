@@ -61,11 +61,11 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 
 <h1>イベント座席表 [ <%= $event->{title} %> ]</h1>
 % if ( @$enquetes > 0 ) {
-<p>
+<p>アンケート結果の色分け表示:<br />
 %   foreach my $enquete ( @$enquetes ) {
 [ <a href="#" class="enq1"><%= $enquete->{short_title} %></a> ]
 %   }
-[ <a href="/<%= $event_id %>/enquete_form?TB_iframe=true&height=300&width=600" title="表示する" class="thickbox">アンケートに回答</a> ]
+<br />[ <a href="/<%= $event_id %>/enquete_form?TB_iframe=true&height=300&width=600" title="表示する" class="thickbox">アンケートに回答</a> ]
 </p>
 % }
 <table border="1" class="seats">
