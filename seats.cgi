@@ -252,6 +252,15 @@ get '/:event_id/enquete_form' => sub {
     my $self = shift;
     my $event_id = $self->param('event_id');
 
+    # Twitterの認証が有効かを確認
+    my $tw_access_token = $self->session('tw_access_token');
+    my $tw_access_token_secret = $self->session('tw_access_token_secret');
+
+    if ( $tw_access_token && $tw_access_token_secret ) {
+        $tw->access_token($tw_access_token);
+        $tw->access_token_secret($tw_access_token_secret);
+    }
+
     my $user = eval { $tw->verify_credentials };
     if (!$user) { 
         $self->render('event_enquete_nologin');
@@ -267,6 +276,15 @@ get '/:event_id/enquete_form' => sub {
 post '/:event_id/enquete' => sub {
     my $self = shift;
     my $event_id = $self->param('event_id');
+
+    # Twitterの認証が有効かを確認
+    my $tw_access_token = $self->session('tw_access_token');
+    my $tw_access_token_secret = $self->session('tw_access_token_secret');
+
+    if ( $tw_access_token && $tw_access_token_secret ) {
+        $tw->access_token($tw_access_token);
+        $tw->access_token_secret($tw_access_token_secret);
+    }
 
     my $user = eval { $tw->verify_credentials };
     if (!$user) { 
