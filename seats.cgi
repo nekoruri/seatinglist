@@ -156,6 +156,7 @@ get '/:event_id/admin' => sub {
     $self->stash(admin => 1);
     $self->stash(event => $event);
     $self->stash(seats => $seats);
+    $self->stash(enquetes => $db->fetch_event_enquetes($event_id));
     $self->render('event');
 } => 'event_admin';
 
