@@ -294,11 +294,12 @@ post '/:event_id/enquete' => sub {
     }
 
     my $enquetes = $db->fetch_event_enquetes($event_id);
-    my $enquete_ids = map { $_->{id} } @$enquetes;
+    my @enquete_ids = map { $_->{id} } @$enquetes;
 
     my $result = {};
-    foreach my $enquete_id ( $enquete_ids ) {
-        if ( my $opt = $self->param('enq'.$enquete_id) ) {
+    foreach my $enquete_id ( @enquete_ids ) {
+        my $opt = $self->param('enq'.$enquete_id);
+        if ( defined $opt ) {
             $result->{$enquete_id} = $opt;
         }
     }
