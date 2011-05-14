@@ -185,6 +185,14 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 % }
 </tbody></table>
 
+% if ( $event->{description} ) {
+%   my $desc = b($event->{description})->xml_escape->to_string;
+%   $desc =~ s{\n}{<br/ >}g;
+<p><%= b($desc) %></p>
+% }
+% if ( $event->{URL} ) {
+<p>関連URL: <a href="<%= $event->{URL} %>"><%= $event->{URL} %></a></p>
+% }
 % if ( $atnd_event ) {
 <h2>ATND情報</h2>
 <dl>

@@ -48,7 +48,7 @@ sub generate_seats
     my ( $event_id ) = @_;
     return if (!defined $event_id);
 
-    my $sql = 'SELECT title, seats_X, seats_Y, atnd_event_id FROM events WHERE id = ?';
+    my $sql = 'SELECT title, seats_X, seats_Y, atnd_event_id, description, URL FROM events WHERE id = ?';
     my $sth = $self->dbh->prepare($sql);
     $sth->execute($event_id);
 
