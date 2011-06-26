@@ -5,7 +5,8 @@ CREATE TABLE events (
     URL TEXT,
     seats_X TINYINT UNSIGNED NOT NULL,
     seats_Y TINYINT UNSIGNED NOT NULL,
-    atnd_event_id INTEGER UNSIGNED DEFAULT NULL
+    atnd_event_id INTEGER UNSIGNED DEFAULT NULL,
+    owner_twitter_user_id INT UNSIGNED NOT NULL
 ) ENGINE=InnoDB;
 
 CREATE TABLE enquete (
