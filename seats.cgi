@@ -123,19 +123,26 @@ get '/:event_id' => sub {
     $self->render('event');
 } => 'event';
 
-# イベントの座席表を表示
+# イベント管理画面
 get '/:event_id/admin' => sub {
     my $self = shift;
     my $event_id = $self->param('event_id');
 
-    my ( $event, $seats ) = $db->generate_seats($event_id);
-
-    $self->stash(screen_name => '');
     my $user = verify_credentials($self);
-    if ($user) {
-        $self->stash(screen_name => $user->{screen_name});
+    if (!$user) {
+        # 認証が無効ならば、request_tokenをもらってauthorization開始
+        my $callback_url = $self->url_for('index')->to_abs . "$event_id/admin/authorized";
+        start_authorization($self, $callback_url);
+        return;
     }
+    my ( $event, $seats ) = $db->generate_seats($event_id);
+    if ( $event->{owner_twitter_user_id} ne $user->{id_str} ) {
+        # 管理者じゃなければイベント画面にリダイレクト
+        $self->redirect_to($self->url_for('event')->to_abs."$event_id");
+        return;
+    }            
 
+    $self->stash(screen_name => $user->{screen_name});
     $self->stash(atnd_event => undef);
     $self->stash(admin => 1);
     $self->stash(event => $event);
@@ -143,6 +150,22 @@ get '/:event_id/admin' => sub {
     $self->stash(enquetes => $db->fetch_event_enquetes($event_id));
     $self->render('event');
 } => 'event_admin';
+
+# 座席登録(Twitter認証からのコールバック先)
+get '/:event_id/admin/authorized' => sub {
+    my $self = shift;
+    my $event_id = $self->param('event_id');
+
+    my $verifier = $self->param('oauth_verifier');
+    if ($verifier) {
+        request_access_token($self, $verifier);
+        if ( my $user = $tw->verify_credentials ) {
+            $self->redirect_to($self->url_for('event')->to_abs."$event_id/admin");
+        }
+    }
+    $self->flash(error_message => 'Twitter認証に失敗しました。');
+    $self->redirect_to($self->url_for('event')->to_abs."$event_id");
+};
 
 # 座席表に席を登録
 get '/:event_id/seat/:x/:y' => sub {
