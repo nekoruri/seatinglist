@@ -45,20 +45,12 @@ get '/login' => sub {
             $self->redirect_to($self->url_for('index')->to_abs);
         }
     } else {
-        # ひとまず今のアクセストークン対を忘れる。
-        $self->session('tw_access_token' => '');
-        $self->session('tw_access_token_secret' => '');
-
         # Sign in with Twitter
         my $callback_url = $self->url_for('authorized')->to_abs;
         if (my $event_id = $self->param('event_id')) {
             $callback_url .= "?event_id=$event_id";
         }
-        my $auth_url = $tw->get_authentication_url(callback => $callback_url);
-        $self->session('tw_request_token' => $tw->request_token);
-        $self->session('tw_request_token_secret' => $tw->request_token_secret);
-
-        $self->redirect_to($auth_url);
+        start_authorization($self, $callback_url);
     }
 } => 'login';
 
@@ -159,21 +151,16 @@ get '/:event_id/seat/:x/:y' => sub {
     my $seat_X = $self->param('x');
     my $seat_Y = $self->param('y');
 
-    # 認証されていれば座席を登録
     if ( my $user = verify_credentials($self) ) {
+        # 認証されていれば座席を登録
         $db->update_seat($user, $event_id, $seat_X, $seat_Y);
         $self->redirect_to($self->url_for('event')->to_abs."$event_id");
         return;
+    } else {
+        # 認証が無効ならば、request_tokenをもらってauthorization開始
+        my $callback_url = $self->url_for('index')->to_abs . "$event_id/seat/$seat_X/$seat_Y/authorized";
+        start_authorization($self, $callback_url);
     }
-
-    # 認証が無効ならば、request_tokenをもらってauthorization開始
-    my $callback_url = $self->url_for('index')->to_abs . "$event_id/seat/$seat_X/$seat_Y/authorized";
-    my $auth_url = $tw->get_authentication_url(callback => $callback_url);
-
-    $self->session('tw_request_token' => $tw->request_token);
-    $self->session('tw_request_token_secret' => $tw->request_token_secret);
-
-    $self->redirect_to($auth_url);
 };
 
 # 座席情報の編集
@@ -312,4 +299,18 @@ sub verify_credentials
     };
 }
 
+sub start_authorization
+{
+    my $self = shift;
+    my $callback_url = shift;
+
+    my $auth_url = $tw->get_authentication_url(callback => $callback_url);
+
+    $self->session('tw_access_token' => '');
+    $self->session('tw_access_token_secret' => '');
+    $self->session('tw_request_token' => $tw->request_token);
+    $self->session('tw_request_token_secret' => $tw->request_token_secret);
+
+    $self->redirect_to($auth_url);
+}
 
