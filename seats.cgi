@@ -139,18 +139,10 @@ get '/:event_id/admin' => sub {
     my ( $event, $seats ) = $db->generate_seats($event_id);
 
     $self->stash(screen_name => '');
-    eval {
-        # Twitterの認証が有効かを確認
-        my $tw_access_token = $self->session('tw_access_token');
-        my $tw_access_token_secret = $self->session('tw_access_token_secret');
-        if ( $tw_access_token && $tw_access_token_secret ) {
-            $tw->access_token($tw_access_token);
-            $tw->access_token_secret($tw_access_token_secret);
-            if ( my $user = $tw->verify_credentials ) {
-                $self->stash(screen_name => $user->{screen_name});
-            }
-        }
-    };
+    my $user = verify_credentials($self);
+    if ($user) {
+        $self->stash(screen_name => $user->{screen_name});
+    }
 
     $self->stash(atnd_event => undef);
     $self->stash(admin => 1);
@@ -167,22 +159,14 @@ get '/:event_id/seat/:x/:y' => sub {
     my $seat_X = $self->param('x');
     my $seat_Y = $self->param('y');
 
-    # Twitterの認証が有効かを確認
-    my $tw_access_token = $self->session('tw_access_token');
-    my $tw_access_token_secret = $self->session('tw_access_token_secret');
-
-    if ( $tw_access_token && $tw_access_token_secret ) {
-        $tw->access_token($tw_access_token);
-        $tw->access_token_secret($tw_access_token_secret);
-
-        if ( my $user = $tw->verify_credentials ) {
-            $db->update_seat($user, $event_id, $seat_X, $seat_Y);
-        }
+    # 認証されていれば座席を登録
+    if ( my $user = verify_credentials($self) ) {
+        $db->update_seat($user, $event_id, $seat_X, $seat_Y);
         $self->redirect_to($self->url_for('event')->to_abs."$event_id");
         return;
     }
 
-    # 無効ならば、request_tokenをもらってauthorization開始
+    # 認証が無効ならば、request_tokenをもらってauthorization開始
     my $callback_url = $self->url_for('index')->to_abs . "$event_id/seat/$seat_X/$seat_Y/authorized";
     my $auth_url = $tw->get_authentication_url(callback => $callback_url);
 
@@ -253,16 +237,7 @@ get '/:event_id/enquete_form' => sub {
     my $self = shift;
     my $event_id = $self->param('event_id');
 
-    # Twitterの認証が有効かを確認
-    my $tw_access_token = $self->session('tw_access_token');
-    my $tw_access_token_secret = $self->session('tw_access_token_secret');
-
-    if ( $tw_access_token && $tw_access_token_secret ) {
-        $tw->access_token($tw_access_token);
-        $tw->access_token_secret($tw_access_token_secret);
-    }
-
-    my $user = eval { $tw->verify_credentials };
+    my $user = eval { verify_credentials($self) };
     if (!$user) { 
         $self->render('event_enquete_nologin');
         return;
@@ -278,16 +253,7 @@ post '/:event_id/enquete' => sub {
     my $self = shift;
     my $event_id = $self->param('event_id');
 
-    # Twitterの認証が有効かを確認
-    my $tw_access_token = $self->session('tw_access_token');
-    my $tw_access_token_secret = $self->session('tw_access_token_secret');
-
-    if ( $tw_access_token && $tw_access_token_secret ) {
-        $tw->access_token($tw_access_token);
-        $tw->access_token_secret($tw_access_token_secret);
-    }
-
-    my $user = eval { $tw->verify_credentials };
+    my $user = eval { verify_credentials($self) };
     if (!$user) { 
         $self->render('event_enquete_nologin');
         return;
