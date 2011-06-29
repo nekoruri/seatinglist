@@ -65,7 +65,13 @@
     </tr>
 % }
 </tbody></table>
-<p><input type="submit" name="submit" value="更新" /></p>
+<table class="form">
+<tr><th>イベント名</th><td><input type="text" name="title" value="<%= $event->{title} %>" size="60" /></td></tr>
+<tr><th>詳細</th><td><textarea name="description" cols="60" rows="5"><%= $event->{description} %></textarea></td></tr>
+<tr><th>関連URL</th><td><input type="text" name="URL" value="<%= $event->{URL} %>" size="60" /></td></tr>
+<tr><th>ATND ID</th><td><input type="text" name="atnd_event_id" value="<%= $event->{atnd_event_id} %>" size="20" /></td></tr>
+<tr><td colspan="2"><input type="submit" name="submit" value="更新" /></td></tr>
+</table>
 </form>
 
 % if ( $event->{description} ) {

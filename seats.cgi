@@ -190,6 +190,9 @@ post '/:event_id' => sub {
     }
 
     # テキストフィールドからイベント情報を更新
+    my @cols = qw( title seats_X seats_Y atnd_event_id description URL );
+    $self->app->log->debug(Dumper([ map {$self->param($_)} @cols ]));
+    $db->update_event($event_id, { map {$_, $self->param($_) || undef} @cols });
 
     # 終わったら管理画面にリダイレクト
     $self->redirect_to($self->url_for('event')->to_abs."$event_id/admin");

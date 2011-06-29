@@ -26,6 +26,10 @@ th, td {
     height: 2em;
 }
 
+table.form td { 
+    text-align: left;
+}
+
 th {
     background: #666;
     color: #ffffff;

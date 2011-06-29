@@ -213,5 +213,37 @@ sub search_all_events
     return $events;
 }
 
+# イベント情報の更新
+sub update_event
+{
+    my $self = shift;
+    my ( $event_id, $event ) = @_;
+    return if (!defined $event_id);
+
+    my $sql = 'SELECT title, seats_X, seats_Y, atnd_event_id, description, URL, owner_twitter_user_id FROM events WHERE id = ?';
+    my $sth = $self->dbh->prepare($sql);
+    $sth->execute($event_id);
+
+    my $event_old = $sth->fetchrow_hashref;
+
+    # 変更対象のカラム名
+    my @cols = qw( title seats_X seats_Y atnd_event_id description URL );
+
+    my @changed_cols;
+    foreach my $col (@cols) {
+        if (defined($event->{$col}) && $event_old->{$col} ne $event->{$col}) {
+            push @changed_cols, $col;
+        }
+    }
+
+    # 変更がある場合のみUPDATE
+    if (@changed_cols) {
+        $sql = 'UPDATE events SET '
+                . join( ', ', map { "$_ = ?" } @changed_cols)
+                . 'WHERE id = ?';
+        my $sth = $self->dbh->prepare($sql);
+        $sth->execute((map { $event->{$_} } @changed_cols),  $event_id);
+    }
+}
 
 1;
