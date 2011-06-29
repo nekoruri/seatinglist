@@ -148,8 +148,52 @@ get '/:event_id/admin' => sub {
     $self->stash(event => $event);
     $self->stash(seats => $seats);
     $self->stash(enquetes => $db->fetch_event_enquetes($event_id));
-    $self->render('event');
+    $self->render('event_admin');
 } => 'event_admin';
+
+# イベント情報の更新
+post '/:event_id' => sub {
+    my $self = shift;
+    my $event_id = $self->param('event_id');
+
+    my $user = verify_credentials($self);
+    if (!$user) {
+        # 認証が無効ならばイベント画面にリダイレクト
+        $self->redirect_to($self->url_for('event')->to_abs."$event_id");
+        return;
+    }
+    my ( $event, $seats ) = $db->generate_seats($event_id);
+    if ( $event->{owner_twitter_user_id} ne $user->{id_str} ) {
+        # 管理者じゃなければイベント画面にリダイレクト
+        $self->redirect_to($self->url_for('event')->to_abs."$event_id");
+        return;
+    }            
+
+    #$self->app->log->debug(Dumper($self->param));
+    #$self->app->log->debug(Dumper($seats));
+    #n Dumper($self->param);
+
+    # disabled[x][y] で無効にする席が入ってくるので、
+    # $seats と比較して座席の有効・無効を更新する。
+    foreach my $x ( 0 ... $event->{seats_X}-1 ) {
+        foreach my $y ( 0 ... $event->{seats_Y}-1 ) {
+            my $enabled_prev = $seats->[$x][$y] ? $seats->[$x][$y]{is_enabled} : 1;
+            my $enabled_next = $self->param("disabled[$x][$y]") ? 0 : 1;
+            if ($enabled_prev == 0 && $enabled_next == 1) {
+                $self->app->log->debug("$x:$y | $enabled_prev => $enabled_next");
+                $db->enable_seat($event_id, $x, $y);
+            } elsif ($enabled_prev == 1 && $enabled_next == 0) {
+                $self->app->log->debug("$x:$y | $enabled_prev => $enabled_next");
+                $db->disable_seat($event_id, $x, $y);
+            }
+        }
+    }
+
+    # テキストフィールドからイベント情報を更新
+
+    # 終わったら管理画面にリダイレクト
+    $self->redirect_to($self->url_for('event')->to_abs."$event_id/admin");
+};
 
 # 座席登録(Twitter認証からのコールバック先)
 get '/:event_id/admin/authorized' => sub {

@@ -1,0 +1,107 @@
+<html>
+<head>
+    <title>イベント座席表 [ <%= $event->{title} %> ]</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+    <script type="text/javascript" src="js/thickbox.js"></script>
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-19946424-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+</head>
+<link rel="stylesheet" href="/style.css" type="text/css">
+<link rel="stylesheet" href="/thickbox.css" type="text/css">
+<body>
+<div class="contents">
+<div class="header">
+
+% if ( $screen_name ) {
+<div id="login">@<%= $screen_name %> にてログイン中 / <a href="<%= url_for('logout') %>?event_id=<%= $event_id %>">ログアウト</a></div>
+% } else {
+<div id="login">ログインしていません / <a href="<%= url_for('login') %>?event_id=<%= $event_id %>"><img src="http://a0.twimg.com/images/dev/buttons/sign-in-with-twitter-l-sm.png" width="126" height="16" /></a></div>
+% }
+<div class="clear">&nbsp;</div>
+</div>
+
+<h1>イベント座席表 [ <%= $event->{title} %> ]</h1>
+
+<form method="POST" action="/<%= $event_id %>">
+<table border="1" class="seats">
+    <thead>
+    <tr><th colspan="<%= $event->{seats_X}+1 %>">前</th></tr>
+    <tr><th>Y ＼ X</th>
+%      foreach my $x ( 0 ... $event->{seats_X}-1 ) {
+        <th><%= $x %></td>
+%      }
+    </tr></thead><tfoot></tfoot><tbody>
+% foreach my $y ( 0 ... $event->{seats_Y}-1 ) {
+    <tr><th><%= $y %></th>
+%      foreach my $x ( 0 ... $event->{seats_X}-1 ) {
+%          if ( my $seat = $seats->[$x][$y] ) {
+%              if ( $seat->{is_enabled} ) {
+%                  my @classes;
+%                  if ( $seat->{screen_name} eq $screen_name ) {
+%                      push @classes, 'myself';
+%                  }
+        <td class="<%= join ' ', @classes %>">
+            <div class="screen_name"><%= $seat->{screen_name} %></div>
+            <a href="http://twitter.com/<%= $seat->{screen_name} %>"><img src="<%= $seat->{profile_image_url} %>" /></a><br />
+            <input type="checkbox" name="disabled[<%= $x %>][<%= $y %>]" />
+        </td>
+%              } else {
+        <td><input type="checkbox" name="disabled[<%= $x %>][<%= $y %>]" checked="checked" /></td>
+%              }
+%          } else {
+        <td><input type="checkbox" name="disabled[<%= $x %>][<%= $y %>]" /></td>
+%          }
+%      }
+    </tr>
+% }
+</tbody></table>
+<p><input type="submit" name="submit" value="更新" /></p>
+</form>
+
+% if ( $event->{description} ) {
+%   my $desc = b($event->{description})->xml_escape->to_string;
+%   $desc =~ s{\n}{<br/ >}g;
+<p><%= b($desc) %></p>
+% }
+% if ( $event->{URL} ) {
+<p>関連URL: <a href="<%= $event->{URL} %>"><%= $event->{URL} %></a></p>
+% }
+% if ( $atnd_event ) {
+<h2>ATND情報</h2>
+<dl>
+    <dt>イベントID</dt>
+        <dd><a href="http://atnd.org/events/<%= $atnd_event->{event_id}{content} %>"><%= $atnd_event->{event_id}{content} %></a> <%= $atnd_event->{title} %></dd>
+    <dt>場所</dt>
+        <dd><%= $atnd_event->{place} %></dd>
+</dl>
+% }
+<h2>備考</h2>
+<ul>
+<li><a href="http://twitter.com/synboo/">@synboo</a>さんの作成された<a href="http://synboo.com/twitterconf2/">twitterconf2の座席表システム</a><del>をパクった</del>にインスパイアされて作った座席表システムです。</li>
+<li>ｲﾏｺｺを押すと、Twitterの認証画面経由で座席表のその席を登録できます。</li>
+<li>最後に登録した一箇所のみが有効です。座席を間違えたら、正しい位置で登録すれば移動します。</li>
+<li>TwitterのアクセストークンはブラウザのCookieに保存されているのでシステム側には保存しません。</li>
+<li>他の人が席を独り占めしっぱなしの時は、その人を消してから乗っ取ってください。</li>
+<li class="qpstudy">マッチョ: <%= $event->{machismo} %>人 / ウィンプ: <%= $event->{nomachismo} %>人</li>
+</ul>
+</p>
+
+<address>
+<p>作った人: Aki<a href="http://twitter.com/nekoruri/">@nekoruri</a></p>
+</address>
+
+</div>
+</body>
+</html>
+
+
