@@ -79,7 +79,7 @@ get '/logout' => sub {
 } => 'logout';
 
 # イベントの座席表を表示
-get '/:event_id' => sub {
+get '/:event_id' => [event_id => qr/\d+/] => sub {
     my $self = shift;
     my $event_id = $self->param('event_id');
 
@@ -124,7 +124,7 @@ get '/:event_id' => sub {
 } => 'event';
 
 # イベント管理画面
-get '/:event_id/admin' => sub {
+get '/:event_id/admin' => [event_id => qr/\d+/] => sub {
     my $self = shift;
     my $event_id = $self->param('event_id');
 
@@ -147,12 +147,13 @@ get '/:event_id/admin' => sub {
     $self->stash(admin => 1);
     $self->stash(event => $event);
     $self->stash(seats => $seats);
+    $self->stash(error => {});
     $self->stash(enquetes => $db->fetch_event_enquetes($event_id));
     $self->render('event_admin');
 } => 'event_admin';
 
 # イベント情報の更新
-post '/:event_id' => sub {
+post '/:event_id' => [event_id => qr/\d+/] => sub {
     my $self = shift;
     my $event_id = $self->param('event_id');
 
@@ -192,14 +193,33 @@ post '/:event_id' => sub {
     # テキストフィールドからイベント情報を更新
     my @cols = qw( title seats_X seats_Y atnd_event_id description URL );
     $self->app->log->debug(Dumper([ map {$self->param($_)} @cols ]));
-    $db->update_event($event_id, { map {$_, $self->param($_) || undef} @cols });
+
+    my $event_info = { map {$_, $self->param($_) || undef} @cols };
+
+    # バリデーション
+    my $error = $db->validate_event($event_info);
+    if ($error) {
+        $self->app->log->debug(Dumper($error));
+        $self->stash(screen_name => $user->{screen_name});
+        $self->stash(atnd_event => undef);
+        $self->stash(admin => 1);
+        $self->stash(event => $event);
+        $self->stash(seats => $seats);
+        $self->stash(enquetes => $db->fetch_event_enquetes($event_id));
+        $self->stash(error => $error);
+        $self->render('event_admin');
+        return;
+    }
+
+    # DBに保存
+    $db->update_event($event_id, $event_info);
 
     # 終わったら管理画面にリダイレクト
     $self->redirect_to($self->url_for('event')->to_abs."$event_id/admin");
 };
 
 # 座席登録(Twitter認証からのコールバック先)
-get '/:event_id/admin/authorized' => sub {
+get '/:event_id/admin/authorized' => [event_id => qr/\d$/] => sub {
     my $self = shift;
     my $event_id = $self->param('event_id');
 
@@ -215,7 +235,7 @@ get '/:event_id/admin/authorized' => sub {
 };
 
 # 座席表に席を登録
-get '/:event_id/seat/:x/:y' => sub {
+get '/:event_id/seat/:x/:y' => [event_id => qr/\d+/] => sub {
     my $self = shift;
     my $event_id = $self->param('event_id');
     my $seat_X = $self->param('x');
@@ -234,7 +254,7 @@ get '/:event_id/seat/:x/:y' => sub {
 };
 
 # 座席情報の編集
-post '/:event_id/seat/:x/:y' => sub {
+post '/:event_id/seat/:x/:y' => [event_id => qr/\d+/] => sub {
     my $self = shift;
     my $event_id = $self->param('event_id');
     my $seat_X = $self->param('x');
@@ -251,7 +271,7 @@ post '/:event_id/seat/:x/:y' => sub {
 };
 
 # 座席登録(Twitter認証からのコールバック先)
-get '/:event_id/seat/:x/:y/authorized' => sub {
+get '/:event_id/seat/:x/:y/authorized' => [event_id => qr/\d+/] => sub {
     my $self = shift;
     my $event_id = $self->param('event_id');
     my $seat_X = $self->param('x');
@@ -268,7 +288,7 @@ get '/:event_id/seat/:x/:y/authorized' => sub {
 };
 
 # 座席を無効化
-get '/:event_id/seat/:x/:y/disable' => sub {
+get '/:event_id/seat/:x/:y/disable' => [event_id => qr/\d+/] => sub {
     my $self = shift;
     my $event_id = $self->param('event_id');
     my $seat_X = $self->param('x');
@@ -279,7 +299,7 @@ get '/:event_id/seat/:x/:y/disable' => sub {
 };
 
 # 座席を有効化
-get '/:event_id/seat/:x/:y/enable' => sub {
+get '/:event_id/seat/:x/:y/enable' => [event_id => qr/\d+/] => sub {
     my $self = shift;
     my $event_id = $self->param('event_id');
     my $seat_X = $self->param('x');
@@ -290,7 +310,7 @@ get '/:event_id/seat/:x/:y/enable' => sub {
 };
 
 # アンケートフォームを表示
-get '/:event_id/enquete_form' => sub {
+get '/:event_id/enquete_form' => [event_id => qr/\d+/] => sub {
     my $self = shift;
     my $event_id = $self->param('event_id');
 
@@ -306,7 +326,7 @@ get '/:event_id/enquete_form' => sub {
 } => 'event_enquete_form';
 
 # アンケートの回答
-post '/:event_id/enquete' => sub {
+post '/:event_id/enquete' => [event_id => qr/\d+/] => sub {
     my $self = shift;
     my $event_id = $self->param('event_id');
 
@@ -330,6 +350,59 @@ post '/:event_id/enquete' => sub {
     $db->enquete_update($event_id, $user, $result);
     $self->render('event_enquete_done');
 } => 'event_enquete';
+
+post '/create' => sub {
+    my $self = shift;
+
+    $self->app->log->debug(1);
+    my $user = verify_credentials($self);
+    if (!$user) {
+        $self->redirect_to($self->url_for('index')->to_abs);
+        return;
+    }
+
+    # テキストフィールドからイベント情報を更新
+    my @cols = qw( title seats_X seats_Y atnd_event_id description URL );
+
+    my $event_info = { map {$_, $self->param($_) || undef} @cols };
+    $event_info->{owner_twitter_user_id} = $user->{id};
+    $self->app->log->debug(Dumper($event_info));
+    my $error = $db->validate_event($event_info);
+    if ($error) {
+        $self->app->log->debug(Dumper($error));
+        $self->stash(error => $error);
+        $self->stash(user => $user);
+        $self->render('create_form');
+    } else {
+        my $event_id = $db->insert_event($event_info);
+        $self->redirect_to($self->url_for('event')->to_abs."$event_id/admin");
+    }
+    
+} => 'create_exec';
+
+get '/create' => sub {
+    my $self = shift;
+
+    my $verifier = $self->param('oauth_verifier');
+    if ($verifier) {
+        request_access_token($self, $verifier);
+        $self->redirect_to($self->url_for('create_form')->to_abs);
+        return;
+    }
+
+    my $user = verify_credentials($self);
+    if (!$user) {
+        # Sign in with Twitter
+        my $callback_url = $self->url_for('create_form')->to_abs;
+        start_authorization($self, $callback_url);
+        return;
+    }
+
+    $self->stash(error => {});
+    $self->stash(user => $user);
+    
+} => 'create_form';
+
 
 app->types->type(html => 'text/html; charset=utf-8');
 app->start;

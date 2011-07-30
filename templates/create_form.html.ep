@@ -1,0 +1,51 @@
+<html>
+<head>
+    <title>新規イベント作成 - イベント座席表</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+    <script type="text/javascript" src="js/thickbox.js"></script>
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-19946424-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+</head>
+<link rel="stylesheet" href="/style.css" type="text/css">
+<link rel="stylesheet" href="/thickbox.css" type="text/css">
+<body>
+<div class="contents">
+<div class="header">
+
+<div id="login">@<%= $user->{screen_name} %> にてログイン中 / <a href="<%= url_for('logout') %>">ログアウト</a></div>
+<div class="clear">&nbsp;</div>
+</div>
+
+<h1>新規イベント作成</h1>
+
+<form method="POST" action="/create">
+<table class="form">
+<tr><th>イベント名</th><td><input type="text" name="title" size="60" /><br /><%= $error->{title} ? 'イベント名は必ず入力してください。' : '' %></td></tr>
+<tr><th>座席数(横方向)</th><td><input type="text" name="seats_X" size="10" /><br /><%= $error->{seats_X} ? '座席数は1以上の数値で入力してください。' : '' %></td></tr>
+<tr><th>座席数(前後方向)</th><td><input type="text" name="seats_Y" size="10" /><br /><%= $error->{seats_Y} ? '座席数は1以上の数値で入力してください。' : '' %></td></tr>
+<tr><th>詳細</th><td><textarea name="description" cols="60" rows="5"></textarea></td></tr>
+<tr><th>関連URL</th><td><input type="text" name="URL" size="60" /></td></tr>
+<tr><th>ATND ID</th><td><input type="text" name="atnd_event_id" size="20" /><br /><%= $error->{atnd_event_id} ? 'ATND IDは1以上の数値で入力してください。' : '' %></td></tr>
+<tr><td colspan="2"><input type="submit" name="submit" value="更新" /></td></tr>
+</table>
+</form>
+
+<address>
+<p>作った人: Aki<a href="http://twitter.com/nekoruri/">@nekoruri</a></p>
+</address>
+
+</div>
+</body>
+</html>
+
+

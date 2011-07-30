@@ -66,7 +66,9 @@
 % }
 </tbody></table>
 <table class="form">
-<tr><th>イベント名</th><td><input type="text" name="title" value="<%= $event->{title} %>" size="60" /></td></tr>
+<tr><th>イベント名</th><td><input type="text" name="title" value="<%= $event->{title} %>" size="60" /><br /><%= $error->{title} ? 'イベント名は必ず入力してください。' : '' %></td></tr>
+<tr><th>座席数(横方向)</th><td><input type="text" name="seats_X" size="10" value="<%= $event->{seats_X} %>" /><br /><%= $error->{seats_X} ? '座席数は1以上の数値で入力してください。' : '' %></td></tr>
+<tr><th>座席数(前後方向)</th><td><input type="text" name="seats_Y" size="10" value="<%= $event->{seats_Y} %>" /><br /><%= $error->{seats_Y} ? '座席数は1以上の数値で入力してください。' : '' %></td></tr>
 <tr><th>詳細</th><td><textarea name="description" cols="60" rows="5"><%= $event->{description} %></textarea></td></tr>
 <tr><th>関連URL</th><td><input type="text" name="URL" value="<%= $event->{URL} %>" size="60" /></td></tr>
 <tr><th>ATND ID</th><td><input type="text" name="atnd_event_id" value="<%= $event->{atnd_event_id} %>" size="20" /></td></tr>

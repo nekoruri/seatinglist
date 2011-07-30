@@ -213,6 +213,43 @@ sub search_all_events
     return $events;
 }
 
+sub validate_event
+{
+    my $self = shift;
+    my ($event_info) = @_;
+
+    my %error;
+    if ($event_info->{seats_X} =~ m/[^0-9]/ || $event_info->{seats_X} < 1) {
+        # 必須、かつ数字以外が含まれる
+        $error{seats_X} = '座席数は1以上の数値で入力してください。';
+    }
+
+    if ($event_info->{seats_Y} =~ m/[^0-9]/ || $event_info->{seats_Y} < 1) {
+        # 必須、かつ数字以外が含まれる
+        $error{seats_Y} = '座席数は1以上の数値で入力してください。';
+    }
+
+    if (!defined($event_info->{title}) || $event_info->{title} eq '') {
+        # イベント名は必須
+        $error{title} = 'イベント名は必ず入力してください。';
+    }
+
+    # 詳細(description), 関連URLはとりあえずvalidationなし
+
+    if (defined($event_info->{title}) && $event_info->{title} eq '') {
+        if ($event_info->{atnd_event_id} =~ m/[^0-9]/ || $event_info->{atnd_event_id} < 1) {
+            # 数字以外が含まれる
+            $error{atnd_event_id} = '座席数は1以上の数値で入力してください。';
+        }
+    }
+
+    if (keys %error) {
+        return \%error
+    } else {
+        return;
+    }
+}
+
 # イベント情報の更新
 sub update_event
 {
@@ -244,6 +281,31 @@ sub update_event
         my $sth = $self->dbh->prepare($sql);
         $sth->execute((map { $event->{$_} } @changed_cols),  $event_id);
     }
+}
+
+# イベント情報の更新
+sub insert_event
+{
+    my $self = shift;
+    my ( $event ) = @_;
+
+    my $sql = <<'END_SQL';
+INSERT INTO events
+    ( title, seats_X, seats_Y, atnd_event_id, description, URL, owner_twitter_user_id)
+    VALUES
+    (     ?,       ?,       ?,             ?,           ?,   ?,                     ?)
+END_SQL
+    my @cols = qw( title seats_X seats_Y atnd_event_id description URL owner_twitter_user_id );
+    my @params;
+    foreach my $col (@cols) {
+        push @params, defined($event->{$col}) ? $event->{$col} : '';
+    }
+    my $sth = $self->dbh->prepare($sql);
+    $sth->execute(@params);
+
+    # 挿入したイベントのIDを取得
+    my $event_id = $sth->{mysql_insertid};
+    return $event_id;
 }
 
 1;
