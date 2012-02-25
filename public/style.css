@@ -22,8 +22,16 @@ table {
 
 th, td { 
     text-align: center;
+}
+
+th, td.disabled { 
     width: 5em;
     height: 2em;
+}
+
+td { 
+    width: 62px;
+    height: 83px;
 }
 
 table.form td { 
